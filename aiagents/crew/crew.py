@@ -160,7 +160,7 @@ def StartCrewInteraction(configuration: Initialize):
     try:
         splitterCrew.kickoff()
         configuration.chat_interface.send(
-            "If you have any other queries or need further assistance, Please type your query below.\n\n", 
+            "Execution Completed\n\n", 
             user="System", 
             respond=False)
         reset_for_new_input()
@@ -187,7 +187,7 @@ def StartCrewInteraction(configuration: Initialize):
 def create_session_without_start_button():
     configuration.chat_interface.send(
         pn.pane.Markdown(
-            "Thank you. \n Please enter further query below once the Human Input Agent Appears!",
+            "Thank you. \n Please enter further query below once the Human Input Agent Appears.",
             styles=configuration.chat_styles
         ), user="System", respond=False
     )
