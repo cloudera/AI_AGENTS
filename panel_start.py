@@ -241,7 +241,7 @@ url_input = pn.widgets.TextInput(
 ml_api_input = pn.widgets.PasswordInput(
     name="API Bearer Token", placeholder="", styles={"font-size": "50px"}, width=360, stylesheets=[input_stylesheet]
 )
-file_input = pn.widgets.FileInput(accept=".json", multiple=False, width=360, stylesheets=[input_stylesheet])
+file_input = pn.widgets.FileInput(name="Upload", accept=".json",multiple=False, width=370, stylesheets=[input_stylesheet])
 
 # Alert for invalid Swagger file
 swagger_alert = pn.pane.Alert(
@@ -262,6 +262,21 @@ endpoint_alert = pn.pane.Alert(
     css_classes=["alert"],
 )
 endpoint_alert.visible = False
+
+nl2api_configuration = pn.Card(
+    file_input,
+    swagger_alert,
+    url_input,
+    endpoint_alert,
+    ml_api_input,
+    collapsible=False,
+    title="NL2API",
+    width=385,
+    styles={"background": "#eaf3f3", "overflow": "auto"},  # Enable scrolling if necessary
+    header_background="#cee3e3",
+    active_header_background="#cee3e3",
+    header="<html><h4 style='margin:0.25rem; font-size:0.82rem'>NL2API</h4></html>",
+)
 
 # Watch for changes in input values and trigger validations
 openai_provider_input.param.watch(check_input_value, "value")
@@ -427,19 +442,7 @@ configuration.sidebar = pn.Column(
             configuration_details,
         ),
         pn.Row(
-            url_input,
-        ),
-        pn.Row(
-            endpoint_alert,
-        ),
-        pn.Row(
-            ml_api_input,
-        ),
-        pn.Row(
-            file_input,
-        ),
-        pn.Row(
-            swagger_alert,
+            nl2api_configuration,
         ),
         pn.Row(
             upload_button,
