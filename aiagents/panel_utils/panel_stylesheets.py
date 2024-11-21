@@ -109,6 +109,12 @@ card_stylesheet = """
     }
 """
 
+nl2api_stylesheet = """
+    .card-header {
+        margin-right: 0;
+    }
+"""
+
 sidebar_styles = {
     "border-bottom": "0.15rem solid #c0caca",
     "border-radius": "0.25rem",
