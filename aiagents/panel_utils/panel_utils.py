@@ -170,6 +170,7 @@ class CustomPanelCallbackHandler(pn.chat.langchain.PanelCallbackHandler):
             "Task Matcher": "#e6f3fd",
             "Swagger API Description Summarizer": "#f3f9cf",
             "swagger_splitter": "#eedaff",
+            '"Decision Validator Agent"':"#ffe5f1",
         }
         card = pn.Card(
             markdown_input,
@@ -183,8 +184,8 @@ class CustomPanelCallbackHandler(pn.chat.langchain.PanelCallbackHandler):
                             color: #111;
                         '>{step_name}</h4>
                     </html>""",
-            active_header_background=color[user],
-            header_background=color[user],
+            active_header_background=color.get(user, "#ffe5f1"),
+            header_background=color.get(user, "#ffe5f1"),
             styles={
                 "border-bottom": "0.1rem solid #c0caca",
                 "border-radius": "0.25rem !important",

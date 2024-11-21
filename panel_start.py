@@ -35,7 +35,7 @@ pn.extension(design="material")
 
 # Environment variables to be stored in the .env file
 env_vars = {
-    "LLM_TEMPERATURE": "0",
+    "LLM_TEMPERATURE": "0.1",
     "OPENAI_API_VERSION": "2024-02-01",
     "OPENAI_EMBEDDING_MODEL": "text-embedding-ada-002",
 }
@@ -75,7 +75,7 @@ def create_session_without_start_button(session_context: BokehSessionContext):
     start_crew_button.disabled = True
     configuration.chat_interface.send(
         pn.pane.Markdown(
-            "Thank you. \n Please enter further query below once the Human Input Agent Appears!",
+            "Please enter further query below once the Human Input Agent Appears!",
             styles=configuration.chat_styles
         ), user="System", respond=False
     )

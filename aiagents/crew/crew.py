@@ -204,7 +204,7 @@ def StartCrewInteraction(configuration: Initialize):
         splitterCrew.kickoff()
 
         configuration.chat_interface.send(
-            "If you have any other queries or need further assistance, Please type your query below.\n\n", 
+            "Execution Completed\n\n", 
             user="System", 
             respond=False)
         reset_for_new_input()
