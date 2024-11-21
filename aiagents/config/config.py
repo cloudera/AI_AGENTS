@@ -71,6 +71,7 @@ class Initialize:
         self.chat_styles={"font-size": "1.2em"}
         self.initialization_crew_thread: threads.thread_with_trace = None
         self.crew_thread: threads.thread_with_trace = None
+        self.upload_button: pn.widgets.Button = None
 
     def update_configuration(self):
         load_dotenv(find_dotenv(), override=True)
