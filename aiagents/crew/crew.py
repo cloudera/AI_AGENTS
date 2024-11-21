@@ -1,17 +1,17 @@
 from os import environ, listdir
 import os
 import shutil
-
+from aiagents.custom_threading import threads
+from aiagents.config import configuration
 from crewai import Crew
 import panel as pn
-
+from bokeh.server.contexts import BokehSessionContext
 from aiagents.cml_agents.manager_agents import ManagerAgents
 from aiagents.cml_agents.swagger_splitter import SwaggerSplitterAgents
 from aiagents.cml_agents.agents import Agents
 from aiagents.cml_agents.parse_for_manager import swagger_parser
 from aiagents.cml_agents.callback_utils import custom_callback, custom_initialization_callback
 from aiagents.cml_agents.tasks import Tasks, TasksInitialize
-
 from aiagents.config import Initialize
 
 
@@ -160,9 +160,10 @@ def StartCrewInteraction(configuration: Initialize):
     try:
         splitterCrew.kickoff()
         configuration.chat_interface.send(
-            "If you have any other queries or need further assistance, please Reload the Crew.", 
+            "If you have any other queries or need further assistance, Please type your query below.\n\n", 
             user="System", 
             respond=False)
+        reset_for_new_input()
         configuration.spinner.value = False
         configuration.spinner.visible = False
     
@@ -179,3 +180,40 @@ def StartCrewInteraction(configuration: Initialize):
         configuration.spinner.visible=False
         configuration.spinner.value=False
         configuration.reload_button.disabled=False
+
+
+
+
+def create_session_without_start_button():
+    configuration.chat_interface.send(
+        pn.pane.Markdown(
+            "Thank you. \n Please enter further query below once the Human Input Agent Appears!",
+            styles=configuration.chat_styles
+        ), user="System", respond=False
+    )
+    # Show the loading spinner as the Crew loads
+    configuration.spinner.value = True
+    configuration.spinner.visible = True
+    configuration.crew_thread = threads.thread_with_trace(
+        target=StartCrewInteraction, args=(configuration,)
+    )
+    configuration.crew_thread.daemon = True  # Ensure the thread dies when the main thread (the one that created it) dies
+    configuration.crew_thread.start()
+
+def reset_for_new_input():
+    # Set the active diagram to the current full diagram path for visualization
+    configuration.active_diagram.value = (
+        f"{configuration.diagram_path}/{configuration.diagrams['full']}"
+    )
+    # Attempt to kill the currently running crew thread, if any
+    try:
+        configuration.crew_thread.kill()
+        print("Successfully killed thread")
+    except:
+        print("Not able to kill the thread")
+        pass
+    configuration.reload_button.disabled = True
+    configuration.spinner.visible = False
+    configuration.spinner.value = False
+    print("Setting configuration")
+    create_session_without_start_button()
