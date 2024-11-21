@@ -3,7 +3,7 @@ import os
 import shutil
 
 from crewai import Crew
-from dotenv import find_dotenv, load_dotenv, set_key
+from dotenv import find_dotenv, get_key, load_dotenv, set_key
 import panel as pn
 
 from aiagents.cml_agents.manager_agents import ManagerAgents
@@ -113,8 +113,14 @@ def StartCrewInitialization(configuration: Initialize):
         respond=False,)
         env_file = find_dotenv()
         load_dotenv(env_file)
-        file_count = os.getenv("fileCount")
-        if file_count == '0':
+        file_count = get_key(env_file, "fileCount")
+        try:
+            file_count = int(file_count)
+        except:
+            file_count = 0
+        if file_count == 0 or file_count is None:
+            file_count += 1
+            set_key(env_file, 'fileCount',str(file_count))
             session_created()
     except Exception as err:
         configuration.chat_interface.send(
@@ -195,11 +201,6 @@ def StartCrewInteraction(configuration: Initialize):
 
     try:
         splitterCrew.kickoff()
-        env_file = find_dotenv()
-        load_dotenv(env_file)
-        file_count = os.getenv("fileCount")
-        file_count = int(file_count) + 1 if file_count is not None else 1
-        set_key(env_file, 'fileCount',file_count)
 
         configuration.chat_interface.send(
             "If you have any other queries or need further assistance, please Reload the Crew.", 
@@ -221,6 +222,8 @@ def StartCrewInteraction(configuration: Initialize):
         configuration.spinner.visible=False
         configuration.spinner.value=False
         configuration.reload_button.disabled=False
+
+
 
 # Handle session creation, which includes starting the CrewAI process
 def session_created():
