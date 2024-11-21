@@ -219,9 +219,9 @@ class CustomPanelSidebarHandler(pn.chat.langchain.PanelCallbackHandler):
     ):
         user = serialized["repr"].split("role=")[1].split(",")[0]
         self.agent_name = user
-        configuration.metadata_summarization_status.value = (
-            "Processing the API Spec file ⏱" 
-        )
+        # configuration.metadata_summarization_status.value = (
+        #     "Processing the API Spec file ⏱" 
+        # )
         
 
     def on_chain_end(self, outputs: dict[str, Any], *args, **kwargs):

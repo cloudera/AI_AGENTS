@@ -70,25 +70,6 @@ configuration.chat_interface = pn.chat.ChatInterface(
 )
 
 
-# Handle session creation, which includes starting the CrewAI process
-def session_created(session_context: BokehSessionContext):
-    # Disable the start button and clear chat interface to start a session
-    start_crew_button.disabled = True
-    configuration.chat_interface.clear()
-    configuration.chat_interface.send(
-        pn.pane.Markdown(
-            "Starting the Crew!",
-            styles=configuration.chat_styles
-        ), user="System", respond=False
-    )
-    # Show the loading spinner as the Crew loads
-    configuration.spinner.value = True
-    configuration.spinner.visible = True
-    configuration.crew_thread = threads.thread_with_trace(
-        target=StartCrewInteraction, args=(configuration,)
-    )
-    configuration.crew_thread.daemon = True  # Ensure the thread dies when the main thread (the one that created it) dies
-    configuration.crew_thread.start()
 
 
 # Verify if the provided API endpoint is reachable
@@ -108,7 +89,7 @@ def validate_api_endpoint_input(*events):
             endpoint_alert.visible = False # Hide the "invalid API" alert if valid
         else:
             print("API Endpoint Verification Error:", response)
-            upload_button.disabled = True
+            configuration.upload_button.disabled = True
             endpoint_alert.visible = True
 
 
@@ -120,7 +101,7 @@ def validate_swagger_file_input(*events):
             swagger_alert.visible = False # Hide the "invalid Swagger" alert if valid
         except Exception as e:
             print("Swagger Verification Error:", e)
-            upload_button.disabled=True # Disable the Upload button
+            configuration.upload_button.disabled=True # Disable the Upload button
             swagger_alert.visible = True # Show the "invalid Swagger file" alert if invalid
 
 
@@ -139,10 +120,10 @@ def check_input_value(*events):
             openai_provider_input.value == "OPENAI" and key_input.value
             and ml_api_input.value and url_input.value and file_input.value
     )):
-        upload_button.disabled = False
+        configuration.upload_button.disabled = False
     else:
         # Keep upload button disabled if inputs are incomplete
-        upload_button.disabled = True
+        configuration.upload_button.disabled = True
 
 
 # Define sidebar widgets
@@ -340,6 +321,7 @@ def handle_inputs(event):
     #     except FileNotFoundError:
     #         pass
 
+
     # If the directory for Swagger files does not exist, create it
     if not path.exists(configuration.swagger_files_directory):
         makedirs(configuration.swagger_files_directory)
@@ -356,7 +338,7 @@ def handle_inputs(event):
     configuration.update_configuration() # Update the configuration with the new values
     # Reset input values, disable the 'Upload' button, and enable the 'Start Crew' button after upload
     ml_api_input.value = url_input.value = file_input.value = ""
-    upload_button.disabled = True
+    configuration.upload_button.disabled = True
     configuration.initialization_crew_thread = threads.thread_with_trace(
         target=StartCrewInitialization, args=(configuration,)
     )
@@ -366,7 +348,7 @@ def handle_inputs(event):
  
 
 # Upload button widget configuration and event handling
-upload_button = pn.widgets.Button(
+configuration.upload_button = pn.widgets.Button(
     name="Upload",
     button_type="primary",
     disabled=True,
@@ -375,7 +357,7 @@ upload_button = pn.widgets.Button(
     stylesheets=[button_stylesheet],
     description="Upload the swagger file and the respective endpoints",
 )
-upload_button.on_click(handle_inputs)
+configuration.upload_button.on_click(handle_inputs)
 
 # Start Crew button widget configuration and event handling
 start_crew_button = pn.widgets.Button(
@@ -387,7 +369,7 @@ start_crew_button = pn.widgets.Button(
     stylesheets=[button_stylesheet],
     description="Trigger the crew execution",
 )
-start_crew_button.on_click(session_created)
+# start_crew_button.on_click(session_created)
 
 
 # Reload the diagram and handle post-reload session after stopping the crew thread
@@ -447,7 +429,7 @@ configuration.sidebar = pn.Column(
             nl2api_configuration,
         ),
         pn.Row(
-            upload_button,
+            configuration.upload_button,
         ),
         pn.Row(
             pn.pane.Markdown(
@@ -484,6 +466,12 @@ configuration.customInitializationCallbacks = [
 
 # Main function to initialize and run the application
 def main():
+    env_file = find_dotenv()
+    load_dotenv(env_file)
+
+    # Update API endpoint in the .env file
+    set_key(env_file, 'fileCount', '0')
+
     # Instantiate the FastListTemplate with custom header and sidebar
     template = pn.template.FastListTemplate(
         header="""
