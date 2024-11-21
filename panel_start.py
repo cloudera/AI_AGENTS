@@ -213,10 +213,14 @@ def update_card_contents():
         # Show both Azure details and key input for Azure when expanded
         configuration_details.objects = [azure_details, key_input]
         azure_details.visible = True
+        azure_name = "Azure " if "Azure " not in key_input.name else ""
+        key_input.name = azure_name + key_input.name
     else:
         # Show only key input for OpenAI or when collapsed
         configuration_details.objects = [key_input]
         azure_details.visible = False
+        if "Azure " in key_input.name:
+            key_input.name = key_input.name.split("Azure ")[1]
 
 def update_visibility(event=None):
     """Updates visibility of components based on the provider input value."""
