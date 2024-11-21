@@ -6,8 +6,8 @@ from json import loads, dump
 import time
 from openapi_spec_validator import validate
 from requests import head, exceptions
-from aiagents.crew import StartCrewInteraction
-from aiagents.panel_utils import CustomPanelCallbackHandler
+from aiagents.crew import StartCrewInitialization, StartCrewInteraction
+from aiagents.panel_utils import CustomPanelCallbackHandler, CustomPanelSidebarHandler
 from aiagents.panel_utils.panel_stylesheets import (
     alert_stylesheet,
     button_stylesheet,
@@ -16,7 +16,8 @@ from aiagents.panel_utils.panel_stylesheets import (
     card_stylesheet,
     sidebar_styles,
     input_button_styles,
-    azure_input_stylesheet
+    azure_input_stylesheet,
+    nl2api_stylesheet
 )
 
 # Set the environment variable RUN_PANEL to "True" if it's not already set
@@ -34,7 +35,7 @@ pn.extension(design="material")
 
 # Environment variables to be stored in the .env file
 env_vars = {
-    "LLM_TEMPERATURE": "0.8",
+    "LLM_TEMPERATURE": "0.1",
     "OPENAI_API_VERSION": "2024-02-01",
     "OPENAI_EMBEDDING_MODEL": "text-embedding-ada-002",
 }
@@ -89,6 +90,22 @@ def session_created(session_context: BokehSessionContext):
     configuration.crew_thread.daemon = True  # Ensure the thread dies when the main thread (the one that created it) dies
     configuration.crew_thread.start()
 
+def create_session_without_start_button(session_context: BokehSessionContext):
+    start_crew_button.disabled = True
+    configuration.chat_interface.send(
+        pn.pane.Markdown(
+            "Please enter further query below once the Human Input Agent Appears!",
+            styles=configuration.chat_styles
+        ), user="System", respond=False
+    )
+    # Show the loading spinner as the Crew loads
+    configuration.spinner.value = True
+    configuration.spinner.visible = True
+    configuration.crew_thread = threads.thread_with_trace(
+        target=StartCrewInteraction, args=(configuration,)
+    )
+    configuration.crew_thread.daemon = True  # Ensure the thread dies when the main thread (the one that created it) dies
+    configuration.crew_thread.start()
 
 # Verify if the provided API endpoint is reachable
 def verify_api_endpoint(url, timeout):
@@ -149,15 +166,15 @@ def check_input_value(*events):
 
 # Label and input for selecting the OpenAI provider.
 openai_provider_label = pn.widgets.StaticText(
-    value="OpenAI Provider", styles={"padding": "0 10px"}, width=370
+    value="OpenAI Provider", styles={"padding": "8px 10px", "font-size": "13.5px", "font-weight": "500"}, width=125
 )
 openai_provider_input = pn.widgets.RadioButtonGroup(
     name="OpenAI Provider",
-    options=["AZURE_OPENAI", "OPENAI"],
+    options=["OPENAI", "AZURE_OPENAI"],
     styles=input_button_styles,
     stylesheets=[radio_button_stylesheet],
     button_style="outline",
-    width=370,
+    width=180,
 )
 
 
@@ -176,36 +193,78 @@ azure_embedding_input = pn.widgets.TextInput(
 )
 
 # Card to contain Azure-specific inputs.
-azure_details = pn.Card(azure_deployment_input,
+# Azure details container
+azure_details = pn.Column(
+    azure_deployment_input,
     azure_endpoint_input,
     azure_embedding_input,
+    visible=False
+)
+
+# OpenAI key input
+key_input = pn.widgets.PasswordInput(
+    name="OpenAI Key 6b5aeacf1b9c474fa484db1edf46ee33",
+    placeholder="",
+    width=360,
+    styles={"font-size": "50px"},
+    stylesheets=[input_stylesheet]
+)
+
+# Main configuration card
+configuration_details = pn.Card(
+    key_input,  # Start with just the key input
     width=380,
-    title="Azure OpenAI Details",
+    title="Model Configuration Details",
     collapsed=True,
     styles={"background": "#eaf3f3"},
     header_background="#cee3e3",
     active_header_background="#cee3e3",
-    header="<html><h4 style='margin:0.25rem; font-size:0.82rem'>Azure OpenAI Details</h4></html>",
-    visible=True if openai_provider_input.value == "AZURE_OPENAI" else False,
+    header="<html><h4 style='margin:0.25rem; font-size:0.82rem'>Model Configuration Details</h4></html>"
 )
 
-# Inputs for OpenAI key, API endpoint, API bearer token, and Swagger file.
-key_input = pn.widgets.PasswordInput(
-    name="OpenAI Key     6b5aeacf1b9c474fa484db1edf46ee33", placeholder="", styles={"font-size": "50px"}, width=370, stylesheets=[input_stylesheet]
-)
+def update_card_contents():
+    """Updates the card contents based on the provider selection"""
+    is_azure = openai_provider_input.value == "AZURE_OPENAI"
+    
+    if is_azure and not configuration_details.collapsed:
+        # Show both Azure details and key input for Azure when expanded
+        configuration_details.objects = [azure_details, key_input]
+        azure_details.visible = True
+        azure_name = "Azure " if "Azure " not in key_input.name else ""
+        key_input.name = azure_name + key_input.name
+    else:
+        # Show only key input for OpenAI or when collapsed
+        configuration_details.objects = [key_input]
+        azure_details.visible = False
+        if "Azure " in key_input.name:
+            key_input.name = key_input.name.split("Azure ")[1]
+
+def update_visibility(event=None):
+    """Updates visibility of components based on the provider input value."""
+    update_card_contents()
+
+def on_expand(event):
+    """Handle card expansion/collapse events"""
+    update_card_contents()
+
+# Set up event watchers
+openai_provider_input.param.watch(update_visibility, "value")
+configuration_details.param.watch(on_expand, "collapsed")
+
+
 url_input = pn.widgets.TextInput(
-    name="API Endpoint", placeholder="", styles={"font-size": "50px"}, width=370, stylesheets=[input_stylesheet]
+    name="API Endpoint", placeholder="", styles={"font-size": "50px"}, width=360, stylesheets=[input_stylesheet]
 )
 ml_api_input = pn.widgets.PasswordInput(
-    name="API Bearer Token", placeholder="", styles={"font-size": "50px"}, width=370, stylesheets=[input_stylesheet]
+    name="API Bearer Token", placeholder="", styles={"font-size": "50px"}, width=360, stylesheets=[input_stylesheet]
 )
-file_input = pn.widgets.FileInput(accept=".json", multiple=False, width=370, stylesheets=[input_stylesheet])
+file_input = pn.widgets.FileInput(name="Upload", accept=".json",multiple=False, width=360, stylesheets=[input_stylesheet])
 
 # Alert for invalid Swagger file
 swagger_alert = pn.pane.Alert(
     "!!The Swagger file uploaded is invalid. Please upload a valid file",
     alert_type="danger",
-    width=370,
+    width=360,
     stylesheets=[alert_stylesheet],
     css_classes=["alert"],
 )
@@ -215,11 +274,27 @@ swagger_alert.visible = False
 endpoint_alert = pn.pane.Alert(
     "!!The API Endpoint provided is Invalid. Please retry with a valid endpoint or check your network configurations.",
     alert_type="danger",
-    width=370,
+    width=360,
     stylesheets=[alert_stylesheet],
     css_classes=["alert"],
 )
 endpoint_alert.visible = False
+
+nl2api_configuration = pn.Card(
+    file_input,
+    swagger_alert,
+    url_input,
+    endpoint_alert,
+    ml_api_input,
+    collapsible=False,
+    title="NL2API",
+    width=380,
+    styles={"background": "#eaf3f3", "overflow": "auto"},  # Enable scrolling if necessary
+    stylesheets=[nl2api_stylesheet],
+    header_background="#cee3e3",
+    active_header_background="#cee3e3",
+    header="<html><h4 style='margin:0.25rem; font-size:0.82rem'>NL2API</h4></html>",
+)
 
 # Watch for changes in input values and trigger validations
 openai_provider_input.param.watch(check_input_value, "value")
@@ -236,6 +311,8 @@ file_input.param.watch(validate_swagger_file_input, "value")
 
 # Handle input values and update the environment variables accordingly
 def handle_inputs(event):
+    configuration_details.collapsed=True
+    configuration.metadata_summarization_status.value = f""
     env_file = find_dotenv()
     load_dotenv(env_file)
 
@@ -279,23 +356,30 @@ def handle_inputs(event):
     #     except FileNotFoundError:
     #         pass
 
-    #     # If the directory for Swagger files does not exist, create it
-    #     if not path.exists(configuration.swagger_files_directory):
-    #         makedirs(configuration.swagger_files_directory)
-    #     # Save the uploaded Swagger file in the designated directory
-    #     file_path = path.join(
-    #         configuration.swagger_files_directory, file_input.filename
-    #     )
-    #     file_content = loads(file_input.value.decode())
-    #     with open(file_path, "w") as file:
-    #         dump(file_content, file, indent=4)
+    # If the directory for Swagger files does not exist, create it
+    if not path.exists(configuration.swagger_files_directory):
+        makedirs(configuration.swagger_files_directory)
+    # Save the uploaded Swagger file in the designated directory
+    file_path = path.join(
+        configuration.swagger_files_directory, file_input.filename
+    )
+    file_content = loads(file_input.value.decode())
+    with open(file_path, "w") as file:
+        dump(file_content, file, indent=4)
+
+    configuration.new_file_name = file_input.filename
 
     configuration.update_configuration() # Update the configuration with the new values
     # Reset input values, disable the 'Upload' button, and enable the 'Start Crew' button after upload
     ml_api_input.value = url_input.value = file_input.value = ""
     upload_button.disabled = True
+    configuration.initialization_crew_thread = threads.thread_with_trace(
+        target=StartCrewInitialization, args=(configuration,)
+    )
+    configuration.initialization_crew_thread.daemon = True  # Ensure the thread dies when the main thread (the one that created it) dies
+    configuration.initialization_crew_thread.start()
     start_crew_button.disabled = False
-
+ 
 
 # Upload button widget configuration and event handling
 upload_button = pn.widgets.Button(
@@ -320,6 +404,24 @@ start_crew_button = pn.widgets.Button(
     description="Trigger the crew execution",
 )
 start_crew_button.on_click(session_created)
+
+
+def reset_for_new_input(event):
+    # Set the active diagram to the current full diagram path for visualization
+    configuration.active_diagram.value = (
+        f"{configuration.diagram_path}/{configuration.diagrams['full']}"
+    )
+    # Attempt to kill the currently running crew thread, if any
+    try:
+        configuration.crew_thread.kill()
+    except:
+        pass
+    start_crew_button.disabled = True
+    configuration.reload_button.disabled = True
+    configuration.spinner.visible = False
+    configuration.spinner.value = False
+    create_session_without_start_button()
+
 
 
 # Reload the diagram and handle post-reload session after stopping the crew thread
@@ -370,31 +472,24 @@ configuration.reload_button.on_click(reload_post_callback)
 configuration.sidebar = pn.Column(
     pn.Card(
         pn.Row(
-            pn.Column(openai_provider_label, openai_provider_input),
+            pn.Row(openai_provider_label, openai_provider_input),
         ),
         pn.Row(
-            azure_details,
+            configuration_details,
         ),
         pn.Row(
-            key_input,
-        ),
-        pn.Row(
-            url_input,
-        ),
-        pn.Row(
-            endpoint_alert,
-        ),
-        pn.Row(
-            ml_api_input,
-        ),
-        pn.Row(
-            file_input,
-        ),
-        pn.Row(
-            swagger_alert,
+            nl2api_configuration,
         ),
         pn.Row(
             upload_button,
+        ),
+        pn.Row(
+            pn.pane.Markdown(
+                configuration.metadata_summarization_status,
+                width=360,
+                styles={"font-size": "0.8rem"}
+            ),
+            align=("start", "center"),  # vertical, horizontal
         ),
         pn.Row(
             pn.pane.Image(
@@ -412,8 +507,12 @@ configuration.sidebar = pn.Column(
 )
 
 # Custom callback handlers for handling events in the chat interface
-configuration.customCallbacks = [
+configuration.customInteractionCallbacks = [
     CustomPanelCallbackHandler(chat_interface=configuration.chat_interface)
+]
+
+configuration.customInitializationCallbacks = [
+    CustomPanelSidebarHandler(chat_interface=configuration.chat_interface)
 ]
 
 

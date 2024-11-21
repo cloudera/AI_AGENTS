@@ -7,7 +7,7 @@ from .tools import (
     generated_directory_lister,
     swagger_directory_lister,
 )
-from .callback_utils import custom_callback
+from .callback_utils import custom_initialization_callback
 
 from aiagents.config import Initialize
 
@@ -43,7 +43,7 @@ class SwaggerSplitterAgents:
         #     allow_delegation=False,
         #     tools=[swagger_splitter, swagger_directory_lister],
         #     llm=configuration.llm,
-        #     callbacks=configuration.customCallbacks,
+        #     callbacks=configuration.customInteractionCallbacks,
         # )
 
         # Define the Summary Agent
@@ -72,6 +72,6 @@ class SwaggerSplitterAgents:
                 generated_directory_lister,
             ],
             llm=configuration.llm,
-            callbacks=configuration.customCallbacks,
-            step_callback=custom_callback
+            callbacks=configuration.customInitializationCallbacks,
+            step_callback=custom_initialization_callback
         )

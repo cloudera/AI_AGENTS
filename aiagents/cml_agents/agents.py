@@ -3,6 +3,7 @@ from textwrap import dedent
 from crewai import Agent
 from crewai_tools import FileReadTool, DirectoryReadTool
 
+from aiagents.cml_agents.callback_utils import custom_agent_callback
 from aiagents.config import Initialize
 from .tools import get_human_input, api_caller
 
@@ -55,7 +56,7 @@ class Agents:
         #         api_caller,
         #     ],
         #     llm=configuration.llm,
-        #     callbacks=configuration.customCallbacks,
+        #     callbacks=configuration.customInteractionCallbacks,
         # )
 
         self.human_input_agent = Agent(
@@ -79,7 +80,9 @@ class Agents:
             verbose=True,
             tools=[get_human_input],
             llm=configuration.llm,
-            callbacks=configuration.customCallbacks,
+            callbacks=configuration.customInteractionCallbacks,
+            step_callback=custom_agent_callback,
+            step_kwargs={"agent": "Human Input Agent"}
         )
 
         self.validator_agent = Agent(
@@ -87,7 +90,7 @@ class Agents:
             goal=dedent(
                 """
                 Observe the original query passed to the agent that called you for your validation and understand its nuances. 
-                Validate the answer of the agent that has asked your validation and understand the exact outcome that will be produced
+                Validate the answer of the agent that has asked your validation strictly and understand the exact outcome that will be produced.
                 You should be able to deduce whether or not the agent's actions will result in the satisfactory completion of the original query 
                 You should also be able to state your conclusion explicitly and provide explanation on why you reached that conclusion 
                 in a succinct manner.
@@ -103,7 +106,9 @@ class Agents:
                 """
             ),
             verbose=True,
-            allow_delegation=False,
+            allow_delegation=True,
             llm=configuration.llm,
-            callbacks=configuration.customCallbacks,
+            callbacks=configuration.customInteractionCallbacks,
+            step_callback=custom_agent_callback,
+            step_kwargs={"agent": "Decision Validator Agent"}
         )
