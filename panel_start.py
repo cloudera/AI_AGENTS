@@ -88,6 +88,24 @@ def create_session_without_start_button(session_context: BokehSessionContext):
     configuration.crew_thread.daemon = True  # Ensure the thread dies when the main thread (the one that created it) dies
     configuration.crew_thread.start()
 
+
+def create_session_without_start_button(session_context: BokehSessionContext):
+    start_crew_button.disabled = True
+    configuration.chat_interface.send(
+        pn.pane.Markdown(
+            "Please enter further query below once the Human Input Agent Appears!",
+            styles=configuration.chat_styles
+        ), user="System", respond=False
+    )
+    # Show the loading spinner as the Crew loads
+    configuration.spinner.value = True
+    configuration.spinner.visible = True
+    configuration.crew_thread = threads.thread_with_trace(
+        target=StartCrewInteraction, args=(configuration,)
+    )
+    configuration.crew_thread.daemon = True  # Ensure the thread dies when the main thread (the one that created it) dies
+    configuration.crew_thread.start()
+
 # Verify if the provided API endpoint is reachable
 def verify_api_endpoint(url, timeout):
     try:
@@ -386,6 +404,24 @@ start_crew_button = pn.widgets.Button(
     description="Trigger the crew execution",
 )
 # start_crew_button.on_click(session_created)
+
+
+def reset_for_new_input(event):
+    # Set the active diagram to the current full diagram path for visualization
+    configuration.active_diagram.value = (
+        f"{configuration.diagram_path}/{configuration.diagrams['full']}"
+    )
+    # Attempt to kill the currently running crew thread, if any
+    try:
+        configuration.crew_thread.kill()
+    except:
+        pass
+    start_crew_button.disabled = True
+    configuration.reload_button.disabled = True
+    configuration.spinner.visible = False
+    configuration.spinner.value = False
+    create_session_without_start_button()
+
 
 
 def reset_for_new_input(event):
