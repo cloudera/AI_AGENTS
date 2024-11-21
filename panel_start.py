@@ -16,7 +16,8 @@ from aiagents.panel_utils.panel_stylesheets import (
     card_stylesheet,
     sidebar_styles,
     input_button_styles,
-    azure_input_stylesheet
+    azure_input_stylesheet,
+    nl2api_stylesheet
 )
 
 # Set the environment variable RUN_PANEL to "True" if it's not already set
@@ -229,10 +230,14 @@ def update_card_contents():
         # Show both Azure details and key input for Azure when expanded
         configuration_details.objects = [azure_details, key_input]
         azure_details.visible = True
+        azure_name = "Azure " if "Azure " not in key_input.name else ""
+        key_input.name = azure_name + key_input.name
     else:
         # Show only key input for OpenAI or when collapsed
         configuration_details.objects = [key_input]
         azure_details.visible = False
+        if "Azure " in key_input.name:
+            key_input.name = key_input.name.split("Azure ")[1]
 
 def update_visibility(event=None):
     """Updates visibility of components based on the provider input value."""
@@ -253,7 +258,7 @@ url_input = pn.widgets.TextInput(
 ml_api_input = pn.widgets.PasswordInput(
     name="API Bearer Token", placeholder="", styles={"font-size": "50px"}, width=360, stylesheets=[input_stylesheet]
 )
-file_input = pn.widgets.FileInput(name="Upload", accept=".json",multiple=False, width=370, stylesheets=[input_stylesheet])
+file_input = pn.widgets.FileInput(name="Upload", accept=".json",multiple=False, width=360, stylesheets=[input_stylesheet])
 
 # Alert for invalid Swagger file
 swagger_alert = pn.pane.Alert(
@@ -283,9 +288,9 @@ nl2api_configuration = pn.Card(
     ml_api_input,
     collapsible=False,
     title="NL2API",
-    width=385,
-    height=280,
-    styles={"background": "#eaf3f3", "max-height": "250px"},
+    width=380,
+    styles={"background": "#eaf3f3", "overflow": "auto"},  # Enable scrolling if necessary
+    stylesheets=[nl2api_stylesheet],
     header_background="#cee3e3",
     active_header_background="#cee3e3",
     header="<html><h4 style='margin:0.25rem; font-size:0.82rem'>NL2API</h4></html>",

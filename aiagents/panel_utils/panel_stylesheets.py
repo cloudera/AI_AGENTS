@@ -11,10 +11,23 @@ input_stylesheet = """
     input[type=file].bk-input {
         font-size: 0.7rem;
         background-color: #faf7f7;
+        padding-top: 0.7rem;
     }
     .bk-input:not([type='file']) {
         font-size: 0.7rem;
         background-color: #faf7f7;
+    }
+    input[type=file]::file-selector-button {
+        display: none;
+    }
+    input[type=file].bk-input::before {
+        content: "Upload the API Spec File";
+        font-size: 0.75rem;
+        color: #333;
+        border-radius: 5px;
+        padding: 0.5rem;
+        margin: 0.7rem;
+        border: 0.09rem solid #939893;
     }
 """
 
@@ -93,6 +106,12 @@ card_stylesheet = """
     }
     .bk-Row.chat-interface-input-container {
         margin: 0 40px;
+    }
+"""
+
+nl2api_stylesheet = """
+    .card-header {
+        margin-right: 0;
     }
 """
 
