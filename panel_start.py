@@ -271,13 +271,13 @@ nl2api_configuration = pn.Card(
     endpoint_alert,
     ml_api_input,
     collapsible=False,
-    title="NL2API",
+    title="Natural Language (NL) to API",
     width=380,
     styles={"background": "#eaf3f3", "overflow": "auto"},  # Enable scrolling if necessary
     stylesheets=[nl2api_stylesheet],
     header_background="#cee3e3",
     active_header_background="#cee3e3",
-    header="<html><h4 style='margin:0.25rem; font-size:0.82rem'>NL2API</h4></html>",
+    header="<html><h4 style='margin:0.25rem; font-size:0.82rem'>Natural Language (NL) to API</h4></html>",
 )
 
 # Watch for changes in input values and trigger validations
