@@ -85,6 +85,14 @@ button_stylesheet = """
     }
 """
 
+markdown_stylesheet = """
+    :host(.markdown) > div {
+        width: 350px !important;
+        min-width: 350px !important;
+        margin: 0 auto;
+    }
+"""
+
 card_stylesheet = """
     .card-header,
     .accordion-header {

@@ -6,7 +6,7 @@ from json import loads, dump
 import time
 from openapi_spec_validator import validate
 from requests import head, exceptions
-from aiagents.crew import StartCrewInitialization, StartCrewInteraction
+from aiagents.crew import StartCrewInitialization, StartCrewInteraction, create_session_without_start_button
 from aiagents.panel_utils import CustomPanelCallbackHandler, CustomPanelSidebarHandler
 from aiagents.panel_utils.panel_stylesheets import (
     alert_stylesheet,
@@ -17,7 +17,8 @@ from aiagents.panel_utils.panel_stylesheets import (
     sidebar_styles,
     input_button_styles,
     azure_input_stylesheet,
-    nl2api_stylesheet
+    nl2api_stylesheet,
+    markdown_stylesheet,
 )
 
 # Set the environment variable RUN_PANEL to "True" if it's not already set
@@ -63,6 +64,11 @@ configuration.spinner = pn.indicators.LoadingSpinner(
     styles={"margin-top":"-2.8rem"}
 )
 
+configuration.initialization_spinner = pn.indicators.LoadingSpinner(
+    value=False, visible=False, height=30, width=30, color="secondary",
+    styles={"margin-top":"-2.8rem"}
+)
+
 # Define the chat interface with a custom callback function
 configuration.chat_interface = pn.chat.ChatInterface(
     callback=callback, show_rerun=False, show_undo=False, show_clear=False,
@@ -70,22 +76,6 @@ configuration.chat_interface = pn.chat.ChatInterface(
 )
 
 
-
-def create_session_without_start_button(session_context: BokehSessionContext):
-    configuration.chat_interface.send(
-        pn.pane.Markdown(
-            "Please enter further query below once the Human Input Agent Appears!",
-            styles=configuration.chat_styles
-        ), user="System", respond=False
-    )
-    # Show the loading spinner as the Crew loads
-    configuration.spinner.value = True
-    configuration.spinner.visible = True
-    configuration.crew_thread = threads.thread_with_trace(
-        target=StartCrewInteraction, args=(configuration,)
-    )
-    configuration.crew_thread.daemon = True  # Ensure the thread dies when the main thread (the one that created it) dies
-    configuration.crew_thread.start()
 
 # Verify if the provided API endpoint is reachable
 def verify_api_endpoint(url, timeout):
@@ -390,8 +380,14 @@ def reset_for_new_input(event):
     except:
         pass
     configuration.reload_button.disabled = True
+    configuration.chat_interface.clear()
     configuration.spinner.visible = False
     configuration.spinner.value = False
+    configuration.chat_interface.send(
+        "The crew has been reloaded.",
+        user="System",
+        respond=False
+    )
     create_session_without_start_button()
 
 
@@ -416,11 +412,7 @@ def reload_post_callback(event):
     # Send a welcome message to the chat interface after reloading the session
     configuration.chat_interface.send(
         pn.pane.Markdown(
-            """Welcome to Multi-Agent API Orchestrator using CrewAI!! Here, in you can implement different 
-            swagger file integrations. Please upload the correct Swagger file, along with your OpenAI keys, 
-            API endpoint, and access keys to make necessary API calls. Once all the inputs have been 
-            provided, click on the 'Start Crew' button to fire the crew execution, and sit back and relax 
-            while the agent performs the requested tasks on your behalf with the least manual intervention!""",
+            """The crew has been reloaded. Please enter further query below once the Human Input Agent Appears.""",
             styles=configuration.chat_styles,
         ),
         user="System",
@@ -437,7 +429,7 @@ configuration.reload_button = pn.widgets.Button(
     stylesheets=[button_stylesheet],
     description="Reload the Crew",
 )
-configuration.reload_button.on_click(reload_post_callback)
+configuration.reload_button.on_click(reset_for_new_input)
 
 # Sidebar configuration for input fields and buttons
 configuration.sidebar = pn.Column(
@@ -457,18 +449,19 @@ configuration.sidebar = pn.Column(
         pn.Row(
             pn.pane.Markdown(
                 configuration.metadata_summarization_status,
-                width=370,
+                width=380,
                 styles={
                     "font-size": "0.83rem", 
-                    "background-color": "#d4edda",
+                    "background-color": "#e7f5eb3",
                     "color": "#155724",
                     "padding": "0 0.8rem",
                     "border-radius": "8px",
-                    "font-weight": "bold"
-                }
-            ),
-            align=("start", "center"),  # vertical, horizontal
-        ), #if configuration.metadata_summarization_status.value else "",
+                    "font-weight": "bold",
+                    "margin-left": "0.26rem",
+                },
+                stylesheets=[markdown_stylesheet]
+            )
+        ),
         pn.Row(
             pn.pane.Image(
                 configuration.active_diagram,
@@ -519,7 +512,7 @@ def main():
     )
     template.theme_toggle = False # Disable theme toggle button in the template
     # Combine the chat interface and loading spinner into the main layout
-    container = pn.Column(configuration.chat_interface, configuration.spinner)
+    container = pn.Column(configuration.chat_interface, configuration.spinner, configuration.initialization_spinner)
     template.main.append(container)
 
     # Send an initial message to the chat interface providing instructions to the user

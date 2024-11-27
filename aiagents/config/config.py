@@ -53,6 +53,7 @@ class Initialize:
         self.empty_inputs = True
         self.chat_interface: pn.chat.ChatInterface = None
         self.spinner: pn.indicators.LoadingSpinner = None
+        self.initialization_spinner: pn.indicators.LoadingSpinner = None
         self.reload_button: pn.widgets.Button = None
 
         self.customInteractionCallbacks = []

@@ -58,6 +58,8 @@ def StartCrewInitialization(configuration: Initialize):
             user="System",
             respond=False,
         )
+        configuration.initialization_spinner.visible = True
+        configuration.initialization_spinner.value = True
 
     for filename in listdir(configuration.swagger_files_directory):
             if filename == configuration.new_file_name:
@@ -131,6 +133,8 @@ def StartCrewInitialization(configuration: Initialize):
                 user="System",
                 respond=False,
             )
+            configuration.initialization_spinner.visible = False
+            configuration.initialization_spinner.value = False
             session_created()
         else:
             configuration.metadata_summarization_status.value = f"Processed the API Spec File {configuration.new_file_name}"
@@ -155,6 +159,8 @@ def StartCrewInitialization(configuration: Initialize):
                 user="System",
                 respond=False,
             )
+            configuration.initialization_spinner.visible = False
+            configuration.initialization_spinner.value = False
         else:
             configuration.metadata_summarization_status.value = f"Failed with: {err}\nPlease upload the details again."
         configuration.spinner.visible=False
