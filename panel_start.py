@@ -72,25 +72,6 @@ configuration.chat_interface = pn.chat.ChatInterface(
 
 
 def create_session_without_start_button(session_context: BokehSessionContext):
-    start_crew_button.disabled = True
-    configuration.chat_interface.send(
-        pn.pane.Markdown(
-            "Please enter further query below once the Human Input Agent Appears!",
-            styles=configuration.chat_styles
-        ), user="System", respond=False
-    )
-    # Show the loading spinner as the Crew loads
-    configuration.spinner.value = True
-    configuration.spinner.visible = True
-    configuration.crew_thread = threads.thread_with_trace(
-        target=StartCrewInteraction, args=(configuration,)
-    )
-    configuration.crew_thread.daemon = True  # Ensure the thread dies when the main thread (the one that created it) dies
-    configuration.crew_thread.start()
-
-
-def create_session_without_start_button(session_context: BokehSessionContext):
-    start_crew_button.disabled = True
     configuration.chat_interface.send(
         pn.pane.Markdown(
             "Please enter further query below once the Human Input Agent Appears!",
@@ -121,6 +102,7 @@ def validate_api_endpoint_input(*events):
         is_valid, response = verify_api_endpoint(url_input.value, timeout=10)
         if is_valid:
             endpoint_alert.visible = False # Hide the "invalid API" alert if valid
+            check_input_value(*events)
         else:
             print("API Endpoint Verification Error:", response)
             configuration.upload_button.disabled = True
@@ -133,6 +115,7 @@ def validate_swagger_file_input(*events):
         try:
             validate(loads(file_input.value.decode()))
             swagger_alert.visible = False # Hide the "invalid Swagger" alert if valid
+            check_input_value(*events)
         except Exception as e:
             print("Swagger Verification Error:", e)
             configuration.upload_button.disabled=True # Disable the Upload button
@@ -153,11 +136,13 @@ def check_input_value(*events):
         ) or(
             openai_provider_input.value == "OPENAI" and key_input.value
             and ml_api_input.value and url_input.value and file_input.value
-    )):
-        configuration.upload_button.disabled = False
+    )) and not swagger_alert.visible and not endpoint_alert.visible:
+        configuration.empty_inputs = False
+        configuration.upload_button.disabled = False if not configuration.processing_file else True
     else:
         # Keep upload button disabled if inputs are incomplete
         configuration.upload_button.disabled = True
+        configuration.empty_inputs = True
 
 
 # Define sidebar widgets
@@ -301,11 +286,11 @@ azure_deployment_input.param.watch(check_input_value, "value")
 azure_endpoint_input.param.watch(check_input_value, "value")
 azure_embedding_input.param.watch(check_input_value, "value")
 key_input.param.watch(check_input_value, "value")
-url_input.param.watch(check_input_value, "value")
 url_input.param.watch(validate_api_endpoint_input, "value")
+url_input.param.watch(check_input_value, "value")
 ml_api_input.param.watch(check_input_value, "value")
-file_input.param.watch(check_input_value, "value")
 file_input.param.watch(validate_swagger_file_input, "value")
+file_input.param.watch(check_input_value, "value")
 
 
 # Handle input values and update the environment variables accordingly
@@ -373,12 +358,12 @@ def handle_inputs(event):
     # Reset input values, disable the 'Upload' button, and enable the 'Start Crew' button after upload
     ml_api_input.value = url_input.value = file_input.value = ""
     configuration.upload_button.disabled = True
+    configuration.empty_inputs = True
     configuration.initialization_crew_thread = threads.thread_with_trace(
         target=StartCrewInitialization, args=(configuration,)
     )
     configuration.initialization_crew_thread.daemon = True  # Ensure the thread dies when the main thread (the one that created it) dies
     configuration.initialization_crew_thread.start()
-    start_crew_button.disabled = False
  
 
 # Upload button widget configuration and event handling
@@ -393,18 +378,6 @@ configuration.upload_button = pn.widgets.Button(
 )
 configuration.upload_button.on_click(handle_inputs)
 
-# Start Crew button widget configuration and event handling
-start_crew_button = pn.widgets.Button(
-    name="Start Crew",
-    button_type="primary",
-    disabled=True,
-    icon="plane-tilt",
-    icon_size="1.2em",
-    stylesheets=[button_stylesheet],
-    description="Trigger the crew execution",
-)
-# start_crew_button.on_click(session_created)
-
 
 def reset_for_new_input(event):
     # Set the active diagram to the current full diagram path for visualization
@@ -416,25 +389,6 @@ def reset_for_new_input(event):
         configuration.crew_thread.kill()
     except:
         pass
-    start_crew_button.disabled = True
-    configuration.reload_button.disabled = True
-    configuration.spinner.visible = False
-    configuration.spinner.value = False
-    create_session_without_start_button()
-
-
-
-def reset_for_new_input(event):
-    # Set the active diagram to the current full diagram path for visualization
-    configuration.active_diagram.value = (
-        f"{configuration.diagram_path}/{configuration.diagrams['full']}"
-    )
-    # Attempt to kill the currently running crew thread, if any
-    try:
-        configuration.crew_thread.kill()
-    except:
-        pass
-    start_crew_button.disabled = True
     configuration.reload_button.disabled = True
     configuration.spinner.visible = False
     configuration.spinner.value = False
@@ -455,7 +409,6 @@ def reload_post_callback(event):
         pass
     # Clear the chat interface and Enable the 'Start Crew' button to start a new session
     configuration.chat_interface.clear()
-    start_crew_button.disabled = False
     # Disable the reload button to prevent redundant reloads and hide the spinner
     configuration.reload_button.disabled = True
     configuration.spinner.visible = False
@@ -504,11 +457,18 @@ configuration.sidebar = pn.Column(
         pn.Row(
             pn.pane.Markdown(
                 configuration.metadata_summarization_status,
-                width=360,
-                styles={"font-size": "0.8rem"}
+                width=370,
+                styles={
+                    "font-size": "0.83rem", 
+                    "background-color": "#d4edda",
+                    "color": "#155724",
+                    "padding": "0 0.8rem",
+                    "border-radius": "8px",
+                    "font-weight": "bold"
+                }
             ),
             align=("start", "center"),  # vertical, horizontal
-        ),
+        ), #if configuration.metadata_summarization_status.value else "",
         pn.Row(
             pn.pane.Image(
                 configuration.active_diagram,
@@ -516,7 +476,7 @@ configuration.sidebar = pn.Column(
             ),
             align=("start", "center"),  # vertical, horizontal
         ),
-        pn.Row(start_crew_button, configuration.reload_button),
+        pn.Row(configuration.reload_button),
         styles=sidebar_styles, 
         hide_header=True,
         width=400

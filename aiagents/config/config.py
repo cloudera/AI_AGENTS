@@ -49,6 +49,8 @@ class Initialize:
 
         self.sidebar: pn.Column = None
         self.metadata_summarization_status = pn.widgets.TextInput(value="")
+        self.processing_file = False
+        self.empty_inputs = True
         self.chat_interface: pn.chat.ChatInterface = None
         self.spinner: pn.indicators.LoadingSpinner = None
         self.reload_button: pn.widgets.Button = None

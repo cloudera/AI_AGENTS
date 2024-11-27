@@ -5,13 +5,23 @@ import jsonref
 
 class CustomJSONEncoder(json.JSONEncoder):
     """Custom JSON encoder to handle circular references."""
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.seen = set()
+
     def default(self, obj):
         # Handle specific types that may cause issues
+        if isinstance(obj, (dict, list)):
+            if id(obj) in self.seen:
+                return "CircularReferenceDetected"
+            self.seen.add(id(obj))
+
         if isinstance(obj, dict):
             return {key: self.default(value) for key, value in obj.items()}
         elif isinstance(obj, list):
             return [self.default(element) for element in obj]
-        return super().default(obj)
+        else:
+            return super().default(obj)
 
 def read_swagger_file(swagger_file_location):
     """
@@ -76,8 +86,11 @@ def swagger_parser(swagger_file_name: str, swagger_file_root: str, generated_fol
         sanitized_key = sanitize_file_name(path)
         chunk_file_name = os.path.join(output_dir, f"{sanitized_key}.json")
         
-        with open(chunk_file_name, 'w') as file:
-            json.dump(chunk, file, cls=CustomJSONEncoder, indent=2)
+        try:
+            with open(chunk_file_name, 'w') as file:
+                json.dump(chunk, file, cls=CustomJSONEncoder, indent=2)
+        except Exception as e:
+            print(f"Error loading Swagger file chunk: {e}")
 
         # Populate the metadata for mapping paths to chunk files
         methods_metadata = {}

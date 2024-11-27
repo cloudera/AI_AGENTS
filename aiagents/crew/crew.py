@@ -35,17 +35,29 @@ def StartCrewInitialization(configuration: Initialize):
     #     # Recreate the empty directory
     #     os.makedirs(configuration.generated_folder_path)
 
-    configuration.chat_interface.send(
-        pn.pane.Markdown(
-            """Your API Specification file is currently being processed. This may take a few moments. ⏳
-            We are analyzing the content to ensure all details are captured correctly. 
-            Please hold on as we prepare everything for you. 
-            You’ll be notified as soon as the processing is complete. 🚀""",
-            styles=configuration.chat_styles,
-        ),
-        user="System",
-        respond=False,
-    )
+    env_file = find_dotenv()
+    load_dotenv(env_file)
+    file_count = get_key(env_file, "fileCount")
+    try:
+        file_count = int(file_count)
+    except:
+        file_count = 0
+    if file_count >= 1:
+        configuration.metadata_summarization_status.value = (
+            f"Processing the API Spec file {configuration.new_file_name} ⏱" 
+        )
+    else:
+        configuration.chat_interface.send(
+            pn.pane.Markdown(
+                f"""Your API Specification file {configuration.new_file_name} is currently being processed. This may take a few moments. ⏳
+                We are analyzing the content to ensure all details are captured correctly. 
+                Please hold on as we prepare everything for you. 
+                You’ll be notified as soon as the processing is complete. 🚀""",
+                styles=configuration.chat_styles,
+            ),
+            user="System",
+            respond=False,
+        )
 
     for filename in listdir(configuration.swagger_files_directory):
             if filename == configuration.new_file_name:
@@ -101,15 +113,8 @@ def StartCrewInitialization(configuration: Initialize):
         task_callback=custom_initialization_callback
     )
     try:
+        configuration.processing_file = True
         splitterCrew.kickoff()
-        # configuration.metadata_summarization_status.value = "Processed the API Spec File"
-        configuration.chat_interface.send(
-        pn.pane.Markdown(
-            """Processed the API Spec File""",
-            styles=configuration.chat_styles,
-        ),
-        user="System",
-        respond=False,)
         env_file = find_dotenv()
         load_dotenv(env_file)
         file_count = get_key(env_file, "fileCount")
@@ -117,23 +122,47 @@ def StartCrewInitialization(configuration: Initialize):
             file_count = int(file_count)
         except:
             file_count = 0
-        if file_count == 0 or file_count is None:
-            file_count += 1
-            set_key(env_file, 'fileCount',str(file_count))
+        if file_count == 0:
+            configuration.chat_interface.send(
+                pn.pane.Markdown(
+                    f"""Processed the API Spec File {configuration.new_file_name}""",
+                    styles=configuration.chat_styles,
+                ),
+                user="System",
+                respond=False,
+            )
             session_created()
+        else:
+            configuration.metadata_summarization_status.value = f"Processed the API Spec File {configuration.new_file_name}"
+        file_count += 1
+        set_key(env_file, 'fileCount',str(file_count))
+        configuration.processing_file = False
+        if not configuration.empty_inputs:
+            configuration.upload_button.disabled = False
     except Exception as err:
-        configuration.chat_interface.send(
-        pn.pane.Markdown(
-            f"""Failed with {err}\nPlease upload the details again.""",
-            styles=configuration.chat_styles,
-        ),
-        user="System",
-        respond=False,
-    )
+        load_dotenv(env_file)
+        file_count = get_key(env_file, "fileCount")
+        try:
+            file_count = int(file_count)
+        except:
+            file_count = 0
+        if file_count == 0:
+            configuration.chat_interface.send(
+                pn.pane.Markdown(
+                    f"""Failed with: {err}\nPlease upload the details again.""",
+                    styles=configuration.chat_styles,
+                ),
+                user="System",
+                respond=False,
+            )
+        else:
+            configuration.metadata_summarization_status.value = f"Failed with: {err}\nPlease upload the details again."
         configuration.spinner.visible=False
         configuration.spinner.value=False
         configuration.reload_button.disabled=False
-        configuration.upload_button.disabled=False
+        configuration.processing_file=False
+        if not configuration.empty_inputs:
+            configuration.upload_button.disabled = False
 
 
 

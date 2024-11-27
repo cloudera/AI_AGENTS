@@ -21,19 +21,22 @@ def output_formatter(output: str) -> dict:
     human_prompt = f"""
     As a good observer, find and fetch me the value of "role" from:
     {output}
-    Have no prefix or suffix, just return the value, don't act extra smart. 
-    Don't panic or think too much if you can't find it, just return an empty string ("").
-    There are only these many roles possible: 
+    Have no prefix or suffix, just return the value, don't act extra smart.
+    Your instructions are very clear and straight forward.
+    There are only these many roles possible, you must return a value from this list: 
         1. "Human Input Agent"
         2. "API Selector Agent"
         3. "Decision Validator Agent"
         4. "API Caller Agent"
         5. "Task Matcher"
-    So don't try to generate whimsical roles on your own, just send empty string when in doubt
+        6. "None"
+    Here, the 6th role is the fallback role, such that if no role is mentioned, it means that 
+    role 6 must be returned. So don't try to generate whimsical roles on your own, when in doubt.
+    Also, don't just randomly select a role from above. Read the text very thoroughly.
     """
     llm = AzureChatOpenAI(azure_deployment=environ.get(
         "AZURE_OPENAI_DEPLOYMENT", "cml"
-    )) if configuration.openai_provider == "AZURE_OPENAI" else ChatOpenAI()
+    ), temperature=0.8) if configuration.openai_provider == "AZURE_OPENAI" else ChatOpenAI()
     message = HumanMessage(content=human_prompt)
     response = llm(messages=[message]).content
     return response
@@ -108,9 +111,17 @@ class CustomPanelCallbackHandler(pn.chat.langchain.PanelCallbackHandler):
     def on_chain_end(self, outputs: dict[str, Any], *args, **kwargs):
         print(dumps(outputs, indent=2))
         role = output_formatter(outputs["output"])
+        possible_roles = [
+            "Human Input Agent",
+            "API Selector Agent",
+            "Decision Validator Agent",
+            "API Caller Agent",
+            "Task Matcher",
+            "Decision Validator Agent"
+        ]
         print("role:", role)
-        if role and "Agent" in role:
-            self.agent_name = role
+        if role in possible_roles:
+            self.agent_name = role.strip('"').strip("'")
         if "this output contains the appropriate swagger metadata file to use for the task at hand" in outputs["output"].lower():
             configuration.selected_swagger_file = search(
                 r'"file_name":\s*"([^"]+)"', outputs["output"]
