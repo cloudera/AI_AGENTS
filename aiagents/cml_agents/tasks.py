@@ -105,7 +105,7 @@ class Tasks:
         self.initial_human_input_task = Task(
             description=dedent(
                 """
-                Ask the human what action they would like to perform using the swaggers they have provided and 
+                Ask the human what action they would like to perform using the API Specification file they have provided and 
                 format the result in the exact structure required by the 'humanInputOutput' class.
                 """
             ),

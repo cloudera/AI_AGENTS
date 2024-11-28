@@ -51,10 +51,8 @@ def StartCrewInitialization(configuration: Initialize):
     else:
         configuration.chat_interface.send(
             pn.pane.Markdown(
-                f"""Your API Specification file {configuration.new_file_name} is currently being processed. This may take a few moments. ⏳
-                We are analyzing the content to ensure all details are captured correctly. 
-                Please hold on as we prepare everything for you. 
-                You’ll be notified as soon as the processing is complete. 🚀""",
+                f"""Your API specification file, **{configuration.new_file_name}**, is currently being processed to figure out metadata to route future requests. This may take a few moments as we thoroughly analyze its content to ensure all details are accurately captured.
+                We kindly request your patience during this process, and you will be notified immediately upon its completion.""",
                 styles=configuration.chat_styles,
                 stylesheets=[chat_stylesheet]
             ),
@@ -130,7 +128,7 @@ def StartCrewInitialization(configuration: Initialize):
         if file_count == 0:
             configuration.chat_interface.send(
                 pn.pane.Markdown(
-                    f"""Processed the API Spec File {configuration.new_file_name}""",
+                    f"""The API Specification File {configuration.new_file_name} has been successfully processed.""",
                     styles=configuration.chat_styles,
                     stylesheets=[chat_stylesheet]
                 ),
@@ -141,7 +139,7 @@ def StartCrewInitialization(configuration: Initialize):
             configuration.initialization_spinner.value = False
             session_created()
         else:
-            configuration.metadata_summarization_status.value = f"Processed the API Spec File {configuration.new_file_name}"
+            configuration.metadata_summarization_status.value = f"Processed the API Specification File {configuration.new_file_name}"
         file_count += 1
         set_key(env_file, 'fileCount',str(file_count))
         configuration.processing_file = False
@@ -277,7 +275,7 @@ def session_created():
     # configuration.chat_interface.clear()
     configuration.chat_interface.send(
         pn.pane.Markdown(
-            "Starting the Crew!",
+            "Starting the Crew",
             styles=configuration.chat_styles,
             stylesheets=[chat_stylesheet]
         ), user="System", respond=False
@@ -294,7 +292,7 @@ def session_created():
 def create_session_without_start_button():
     configuration.chat_interface.send(
         pn.pane.Markdown(
-            "Thank you. \n Please enter further query below once the Human Input Agent Appears.",
+            "Thank you. \n Please enter further query below once the Human Input Agent is available.",
             styles=configuration.chat_styles,
             stylesheets=[chat_stylesheet]
         ), user="System", respond=False

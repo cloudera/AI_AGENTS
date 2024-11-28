@@ -65,4 +65,4 @@ errors or missing information.
 5. **Manager Task** [<b style="color:#ffc482">API Selector Agent</b>] = Identifies and return the most suitable Swagger file based on the metadata summary and user context.
 6. **Decision Validator Task** [<b style="color:#c5813d">Decision Validator Agent</b>] = Validates the API Selector Agent's proposed answer against the original query, concluding whether it meets the user's intent and expectations.
 7. **API Calling Task** [<b style="color:#cc9999">API Caller Agent</b>] = Makes the API call, ensuring all parameters are identified, requested, and the payload is confirmed before execution.
-8. Stop execution. Need to click on 'Reload Crew' to start a new session.
+8. Stop execution. Need to click on 'Restart Crew' to start a new session.

@@ -102,7 +102,7 @@ class CustomPanelCallbackHandler(pn.chat.langchain.PanelCallbackHandler):
         )
 
         self.send_event(
-            "Task to be completed",
+            "Started Task",
             inputs["input"],
             user,
         )
@@ -133,7 +133,7 @@ class CustomPanelCallbackHandler(pn.chat.langchain.PanelCallbackHandler):
             )
         else:
             self.send_event(
-                "Task outcome",
+                "Ended Task",
                 outputs["output"],
                 self.agent_name,
             )

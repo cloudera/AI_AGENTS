@@ -35,7 +35,7 @@ def read_swagger_file(swagger_file_location):
             with open(swagger_file_location, 'r') as file:
                 return jsonref.load(file, lazy_load=False, proxies=False, merge_props=True)
         except (IOError, jsonref.JsonRefError) as e:
-            print(f"Error loading Swagger file: {e}")
+            print(f"Error loading API Specification file: {e}")
     elif swagger_file_location.endswith('.yaml') or swagger_file_location.endswith('.yml'):
         with open(swagger_file_location, 'r') as file:
             return yaml.safe_load(file)
@@ -90,7 +90,7 @@ def swagger_parser(swagger_file_name: str, swagger_file_root: str, generated_fol
             with open(chunk_file_name, 'w') as file:
                 json.dump(chunk, file, cls=CustomJSONEncoder, indent=2)
         except Exception as e:
-            print(f"Error loading Swagger file chunk: {e}")
+            print(f"Error loading API Specification file chunk: {e}")
 
         # Populate the metadata for mapping paths to chunk files
         methods_metadata = {}

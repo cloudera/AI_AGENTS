@@ -108,7 +108,7 @@ def validate_swagger_file_input(*events):
             swagger_alert.visible = False # Hide the "invalid Swagger" alert if valid
             check_input_value(*events)
         except Exception as e:
-            print("Swagger Verification Error:", e)
+            print("API Specification Verification Error:", e)
             configuration.upload_button.disabled=True # Disable the Upload button
             swagger_alert.visible = True # Show the "invalid Swagger file" alert if invalid
 
@@ -237,7 +237,7 @@ file_input = pn.widgets.FileInput(name="Upload", accept=".json",multiple=False, 
 
 # Alert for invalid Swagger file
 swagger_alert = pn.pane.Alert(
-    "!!The Swagger file uploaded is invalid. Please upload a valid file",
+    "!!The API Specification file uploaded is invalid. Please upload a valid file",
     alert_type="danger",
     width=360,
     stylesheets=[alert_stylesheet],
@@ -365,7 +365,7 @@ configuration.upload_button = pn.widgets.Button(
     icon="upload",
     icon_size="1.2em",
     stylesheets=[button_stylesheet],
-    description="Upload the swagger file and the respective endpoints",
+    description="Upload the API Speicifcation file and the respective endpoints",
 )
 configuration.upload_button.on_click(handle_inputs)
 
@@ -428,12 +428,12 @@ def reload_post_callback(event):
 
 # Reload button widget configuration and event handling
 configuration.reload_button = pn.widgets.Button(
-    name="Reload Crew",
+    name="Restart Crew",
     disabled=True,
     icon="reload",
     icon_size="1.2em",
     stylesheets=[button_stylesheet],
-    description="Reload the Crew",
+    description="Restart the Crew",
 )
 configuration.reload_button.on_click(reset_for_new_input)
 
@@ -524,7 +524,42 @@ def main():
     # Send an initial message to the chat interface providing instructions to the user
     configuration.chat_interface.send(
         pn.pane.Markdown(
-            """Welcome to Multi-Agent API Orchestrator using CrewAI!! Here, in you can implement different swagger file integrations. Please upload the correct Swagger file, along with your OpenAI keys, API endpoint, and access keys to make necessary API calls. Once all the inputs have been provided, click on the 'Start Crew' button to fire the crew execution, and sit back and relax while the agent performs the requested tasks on your behalf with the least manual intervention!""",
+            """
+    ### Welcome to the Multi-Agent API Orchestrator
+
+    Get started by configuring your model and API integrations. We support both **Azure OpenAI** and **OpenAI** services. Please follow the steps below:
+
+    #### Configuration Steps
+    - **Azure OpenAI**: Provide the deployment name, endpoint URL, embedding deployment name, and API key.
+    - **OpenAI**: Simply provide your OpenAI API key to enable model integration.
+
+    #### Natural Language (NL) to API Integration
+    - **Upload API Specification**: Upload a valid API Specification file.
+    - **API Endpoint**: Enter the API endpoint for the integration.
+    - **API Bearer Token**: Provide the bearer token to enable secure API authentication.
+
+    Once all details are entered, click **Upload** to validate your inputs and initiate the orchestration process. **Streamline API orchestration** with CrewAI—handle complexities effortlessly and focus on results.""",
+            styles=configuration.chat_styles,
+            stylesheets=[chat_stylesheet]
+        ),
+        user="System",
+        respond=False,
+    )
+
+    configuration.chat_interface.send(
+        pn.pane.Markdown(
+            """
+        #### Accessing and Using the CML Workbench API Specification:
+        - Sign in to Cloudera AI.
+        - Access the API specification for CML Workbench at `https://<domain name of Cloudera AI instance>/api/v2/swagger.json`
+        - Navigate to **User Settings** > **API Keys** and select **Create API Key**.
+        - Copy the **API key** (bearer token) and the **domain name** from the browser’s address bar (e.g., `ml-xxxx123456.com`).
+
+        Example Tasks that the Agent Can Perform With the given API Specification:
+        - Create a project
+        - List all projects
+        - List all runtimes
+        """,
             styles=configuration.chat_styles,
             stylesheets=[chat_stylesheet]
         ),
