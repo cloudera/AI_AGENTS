@@ -12,31 +12,31 @@ from langchain.schema import HumanMessage
 import panel as pn
 from aiagents.custom_threading import threads
 from aiagents.config import configuration
-from aiagents.panel_utils.panel_stylesheets import card_stylesheet
+from aiagents.panel_utils.panel_stylesheets import card_stylesheet, chat_stylesheet
 
 avatars = {}
 
 
 def output_formatter(output: str) -> dict:
     human_prompt = f"""
-    As a good observer, find and fetch me the value of "role" from:
-    {output}
-    Have no prefix or suffix, just return the value, don't act extra smart.
-    Your instructions are very clear and straight forward.
-    There are only these many roles possible, you must return a value from this list: 
-        1. "Human Input Agent"
-        2. "API Selector Agent"
-        3. "Decision Validator Agent"
-        4. "API Caller Agent"
-        5. "Task Matcher"
-        6. "None"
-    Here, the 6th role is the fallback role, such that if no role is mentioned, it means that 
-    role 6 must be returned. So don't try to generate whimsical roles on your own, when in doubt.
-    Also, don't just randomly select a role from above. Read the text very thoroughly.
+        As a good observer, find and fetch me the value of "role" parameter from:
+        {output}
+        Have no prefix or suffix, just return the value, don't act extra smart.
+        Your instructions are very clear and straight forward. The text you see is the output returned 
+        by one of the agents whose roles are defined below.
+        There are only these many roles possible, you must return a value from this list:
+            1. "Human Input Agent" (takes input from user)
+            2. "API Selector Agent" (makes the API call using the selected API endpoint and returns the response)
+            3. "Decision Validator Agent" (validates and provides feedback on the selection of API endpoint, returns the selection)
+            4. "Input Matcher" (matches the user input to the correct API Spec file)
+            5. "None" (none of the above agent's description matched)
+        Here, the 5th role is the fallback role, such that if no role is mentioned, it means that
+        role 5 must be returned. So don't try to generate whimsical roles on your own, when in doubt.
+        Also, don't just randomly select a role from above. Read the text very thoroughly
     """
     llm = AzureChatOpenAI(azure_deployment=environ.get(
         "AZURE_OPENAI_DEPLOYMENT", "cml"
-    ), temperature=0.8) if configuration.openai_provider == "AZURE_OPENAI" else ChatOpenAI()
+    ), temperature=0.6) if configuration.openai_provider == "AZURE_OPENAI" else ChatOpenAI()
     message = HumanMessage(content=human_prompt)
     response = llm(messages=[message]).content
     return response
@@ -115,9 +115,7 @@ class CustomPanelCallbackHandler(pn.chat.langchain.PanelCallbackHandler):
             "Human Input Agent",
             "API Selector Agent",
             "Decision Validator Agent",
-            "API Caller Agent",
-            "Task Matcher",
-            "Decision Validator Agent"
+            "Input Matcher",
         ]
         print("role:", role)
         if role in possible_roles:
@@ -145,7 +143,8 @@ class CustomPanelCallbackHandler(pn.chat.langchain.PanelCallbackHandler):
             self.chat_interface.send(
                 pn.pane.Markdown(
                     object="If you have any other queries or need further assistance, please Reload the Crew.",
-                    styles=configuration.chat_styles
+                    styles=configuration.chat_styles,
+                    stylesheets=[chat_stylesheet],
                 ),
                 user=self.agent_name, respond=False
             )
@@ -162,7 +161,7 @@ class CustomPanelCallbackHandler(pn.chat.langchain.PanelCallbackHandler):
             "border": "1px solid black",
             "padding": "10px",
             "box-shadow": "5px 5px 5px #bcbcbc",
-            "font-size": "1.2em",
+            "font-size": "0.85rem",
             "border-radius": "0.7rem",
             "overflow-y": "scroll",
             "max-height": "20em",
@@ -178,10 +177,9 @@ class CustomPanelCallbackHandler(pn.chat.langchain.PanelCallbackHandler):
             "API Selector Agent": "#fef6db",
             "Decision Validator Agent": "#fbe7dd",
             "API Caller Agent": "#ffe5f1",
-            "Task Matcher": "#e6f3fd",
+            "Input Matcher": "#e6f3fd",
             "Swagger API Description Summarizer": "#f3f9cf",
             "swagger_splitter": "#eedaff",
-            '"Decision Validator Agent"':"#ffe5f1",
         }
         card = pn.Card(
             markdown_input,
@@ -190,7 +188,7 @@ class CustomPanelCallbackHandler(pn.chat.langchain.PanelCallbackHandler):
             header=f"""<html>
                         <h4 style='
                             margin:0.25rem;
-                            font-size:1.2em;
+                            font-size:0.86rem;
                             font-weight:500;
                             color: #111;
                         '>{step_name}</h4>

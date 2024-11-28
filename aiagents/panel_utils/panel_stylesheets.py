@@ -21,7 +21,7 @@ input_stylesheet = """
         display: none;
     }
     input[type=file].bk-input::before {
-        content: "Upload the API Spec File";
+        content: "Upload API Specification";
         font-size: 0.75rem;
         color: #333;
         border-radius: 5px;
@@ -90,6 +90,12 @@ markdown_stylesheet = """
         width: 350px !important;
         min-width: 350px !important;
         margin: 0 auto;
+    }
+"""
+
+chat_stylesheet = """
+    :host(.markdown) > div > p {
+        margin: 0.65rem 0;
     }
 """
 

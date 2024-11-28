@@ -17,6 +17,8 @@ from aiagents.cml_agents.tasks import Tasks, TasksInitialize
 from aiagents.config import Initialize, configuration
 from aiagents.custom_threading import threads
 
+from aiagents.panel_utils.panel_stylesheets import chat_stylesheet
+
 
 # we can't directly import the agents and tasks because we want to ensure that the configuration is first
 # initialize the configuration with panel hooks, and then pass it as an argument
@@ -54,6 +56,7 @@ def StartCrewInitialization(configuration: Initialize):
                 Please hold on as we prepare everything for you. 
                 You’ll be notified as soon as the processing is complete. 🚀""",
                 styles=configuration.chat_styles,
+                stylesheets=[chat_stylesheet]
             ),
             user="System",
             respond=False,
@@ -129,6 +132,7 @@ def StartCrewInitialization(configuration: Initialize):
                 pn.pane.Markdown(
                     f"""Processed the API Spec File {configuration.new_file_name}""",
                     styles=configuration.chat_styles,
+                    stylesheets=[chat_stylesheet]
                 ),
                 user="System",
                 respond=False,
@@ -155,6 +159,7 @@ def StartCrewInitialization(configuration: Initialize):
                 pn.pane.Markdown(
                     f"""Failed with: {err}\nPlease upload the details again.""",
                     styles=configuration.chat_styles,
+                    stylesheets=[chat_stylesheet]
                 ),
                 user="System",
                 respond=False,
@@ -237,7 +242,11 @@ def StartCrewInteraction(configuration: Initialize):
         splitterCrew.kickoff()
 
         configuration.chat_interface.send(
-            "Execution Completed\n\n", 
+            pn.pane.Markdown(
+                "Execution Completed", 
+                styles=configuration.chat_styles,
+                stylesheets=[chat_stylesheet]
+            ), 
             user="System", 
             respond=False)
         reset_for_new_input()
@@ -248,7 +257,8 @@ def StartCrewInteraction(configuration: Initialize):
         configuration.chat_interface.send(
             pn.pane.Markdown(
                 object=f"Starting Interaction Crew Failed with {err}\n Please Reload the Crew.",
-                styles=configuration.chat_styles
+                styles=configuration.chat_styles,
+                stylesheets=[chat_stylesheet]
             ),
             user="System",
             respond=False
@@ -268,7 +278,8 @@ def session_created():
     configuration.chat_interface.send(
         pn.pane.Markdown(
             "Starting the Crew!",
-            styles=configuration.chat_styles
+            styles=configuration.chat_styles,
+            stylesheets=[chat_stylesheet]
         ), user="System", respond=False
     )
     # Show the loading spinner as the Crew loads
@@ -284,7 +295,8 @@ def create_session_without_start_button():
     configuration.chat_interface.send(
         pn.pane.Markdown(
             "Thank you. \n Please enter further query below once the Human Input Agent Appears.",
-            styles=configuration.chat_styles
+            styles=configuration.chat_styles,
+            stylesheets=[chat_stylesheet]
         ), user="System", respond=False
     )
     # Show the loading spinner as the Crew loads

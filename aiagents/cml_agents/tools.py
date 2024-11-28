@@ -22,6 +22,8 @@ from aiagents.config import configuration
 
 from .parse_for_manager import swagger_parser
 
+from aiagents.panel_utils.panel_stylesheets import chat_stylesheet
+
 metadata_summary_fetcher = FileReadTool(file_path=configuration.metadata_summaries_path)
 
 generated_directory_traverser = DirectoryReadTool(
@@ -79,7 +81,8 @@ def get_human_input(agent_name: str, agent_question: str) -> str:
     configuration.chat_interface.send(
         value=pn.pane.Markdown(
             object=agent_question,
-            styles=configuration.chat_styles
+            styles=configuration.chat_styles,
+            stylesheets=[chat_stylesheet]
         ),
         user=agent_name,
         respond=False,
@@ -290,7 +293,8 @@ class APICaller(BaseTool):
         configuration.chat_interface.send(
             value=pn.pane.Markdown(
                 object=call_details,
-                styles=configuration.chat_styles
+                styles=configuration.chat_styles,
+                stylesheets=[chat_stylesheet]
             ), user="API Caller Tool", respond=False, avatar="🛠️"
         )
 

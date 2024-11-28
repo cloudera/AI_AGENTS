@@ -94,7 +94,7 @@ class Tasks:
 
         class humanInputOutput(BaseModel):
             """
-            This class is used to store the decision made by the task matcher agent. It has several fields:
+            This class is used to store the decision made by the input matcher agent. It has several fields:
             - answer: A clear answer stating the user action EXACTLY as they have mentioned within quotes
             - role: The role of the agent executing the task
             """
@@ -106,12 +106,12 @@ class Tasks:
             description=dedent(
                 """
                 Ask the human what action they would like to perform using the swaggers they have provided and 
-                format the result in the exact structure required by the 'taskMatcherDecision' class.
+                format the result in the exact structure required by the 'humanInputOutput' class.
                 """
             ),
             expected_output=dedent(
                 f"""
-                The output should be of the structure of the taskMatcherDecision class. It has several fields:
+                The output should be of the structure of the humanInputOutput class. It has several fields:
                     - answer: A clear answer stating the user action EXACTLY as they have mentioned within quotes, 
                         and please don't change or miss a single word they have provided. 
                     - role: The value of {agents['human_input_agent'].role}
@@ -122,13 +122,13 @@ class Tasks:
             #context=[self.metadata_summarizer_task],
         )
 
-        class taskMatcherDecision(BaseModel):
+        class inputMatcherDecision(BaseModel):
             """
-            This class is used to store the decision made by the task matcher agent. It has several fields:
+            This class is used to store the decision made by the input matcher agent. It has several fields:
             - file_name: The file name of the appropriate swagger metadata file chosen.
             - file_location: The path or location of the appropriate swagger metadata file chosen.
             - task: The task at hand for which the swagger file was chosen.
-            - reason: The reasoning behind why the task matcher agent has decided to use this particular swagger metadata file.
+            - reason: The reasoning behind why the input matcher agent has decided to use this particular swagger metadata file.
             - description: The description of this class used to identify the output
             - role: The role of the agent executing the task
             """
@@ -161,23 +161,23 @@ class Tasks:
                     2. Provide a clear explanation of why you selected this particular Swagger API.
                     3. If only one option exists or you are highly confident, you can skip this step and proceed directly.
                 5. Return Swagger Metadata Location:
-                    1. Once the appropriate Swagger file is identified, format the result in the exact structure required by the 'taskMatcherDecision' class.
+                    1. Once the appropriate Swagger file is identified, format the result in the exact structure required by the 'inputMatcherDecision' class.
                     2. Include the description: "This output contains the appropriate swagger metadata file to use for the task at hand."
                     3. Finish execution.
                 """
             ),
             expected_output="A concise answer stating the exact location of the appropriate swagger metadata file, "
             f"""as well as the reason why it is the one that has been chosen. The output should be of the structure 
-            of the taskMatcherDecision class. It has several fields:
+            of the inputMatcherDecision class. It has several fields:
                 - file_name: The file name of the appropriate swagger metadata file chosen.
                 - file_location: The path or location of the appropriate swagger metadata file chosen.
                 - task: The task at hand for which the swagger file was chosen.
-                - reason: The reasoning behind why the task matcher agent has decided to use this particular swagger metadata file.
+                - reason: The reasoning behind why the input matcher agent has decided to use this particular swagger metadata file.
                 - description: The description of this class which will be used to identify the output = 'This output contains 
                 the appropriate swagger metadata file to use for the task at hand'
                 - role: The value of {agents['task_matching_agent'].role}
             """,
-            output_json=taskMatcherDecision,
+            output_json=inputMatcherDecision,
             agent=agents["task_matching_agent"],
             context=[ self.initial_human_input_task],
         )
@@ -239,7 +239,7 @@ class Tasks:
 
         class managerOutput(BaseModel):
             """
-            This class is used to store the decision made by the task matcher agent. It has several fields:
+            This class is used to store the decision made by the input matcher agent. It has several fields:
             - answer: The exact full result of the 'api caller tool', summarized and formatted clearly and concisely
             - role: The role of the agent executing the task
             """
@@ -252,7 +252,7 @@ class Tasks:
                 """
                 Follow the following steps:
                 1. Read the Metadata File:
-                    1. Use the 'file read tool' to access the metadata file. The file location can be found in the context provided by the 'task matcher' agent.
+                    1. Use the 'file read tool' to access the metadata file. The file location can be found in the context provided by the 'input matcher' agent.
                 2. Select Endpoint and HTTP Method:
                     1. Analyze the metadata to identify the Swagger file that contains the endpoint most suited to the user query.
                     2. Match the user’s query to endpoint descriptions by evaluating the similarity between the user's intent and the function of the endpoint.

@@ -21,7 +21,7 @@
 ### Agents in Action
 1. **Swagger Splitter Agent** = splits large Swagger JSON files into smaller, manageable files, ensuring efficient processing.
 2. **Human Input Agent** = gathers required information from the user and relaying it back to the delegating agent.
-3. **Task Matcher Agent** = identifies the best matching Swagger metadata file for a given task using metadata summaries.
+3. **Input Matcher Agent** = identifies the best matching Swagger metadata file for a given task using metadata summaries.
 4. **Metadata Summarizer Agent** = generates concise, descriptive summaries of API capabilities for all Swagger JSON files.
 5. **API Selector Agent** = selects the most appropriate API endpoint and method from a metadata file to fulfill a task.
 6. **Decision Validator Agent** = validates whether the actions of the API Selector Agent will satisfactorily fulfill the<br>

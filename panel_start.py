@@ -19,6 +19,7 @@ from aiagents.panel_utils.panel_stylesheets import (
     azure_input_stylesheet,
     nl2api_stylesheet,
     markdown_stylesheet,
+    chat_stylesheet
 )
 
 # Set the environment variable RUN_PANEL to "True" if it's not already set
@@ -384,7 +385,11 @@ def reset_for_new_input(event):
     configuration.spinner.visible = False
     configuration.spinner.value = False
     configuration.chat_interface.send(
-        "The crew has been reloaded.",
+        pn.pane.Markdown(
+            "The crew has been reloaded.", 
+            styles=configuration.chat_styles,
+            stylesheets=[chat_stylesheet]
+        ),
         user="System",
         respond=False
     )
@@ -414,6 +419,7 @@ def reload_post_callback(event):
         pn.pane.Markdown(
             """The crew has been reloaded. Please enter further query below once the Human Input Agent Appears.""",
             styles=configuration.chat_styles,
+            stylesheets=[chat_stylesheet]
         ),
         user="System",
         respond=False,
@@ -452,8 +458,8 @@ configuration.sidebar = pn.Column(
                 width=380,
                 styles={
                     "font-size": "0.83rem", 
-                    "background-color": "#e7f5eb3",
-                    "color": "#155724",
+                    "background-color": "#e7f5eb",
+                    "color": "#092710",
                     "padding": "0 0.8rem",
                     "border-radius": "8px",
                     "font-weight": "bold",
@@ -499,7 +505,7 @@ def main():
     template = pn.template.FastListTemplate(
         header="""
             <html><a href="/" style='
-                font-size: 1.3rem;
+                font-size: 1.2rem;
                 color: #f1e1e1;
                 text-decoration: none;
                 margin-left: -2rem;
@@ -518,12 +524,9 @@ def main():
     # Send an initial message to the chat interface providing instructions to the user
     configuration.chat_interface.send(
         pn.pane.Markdown(
-            """Welcome to Multi-Agent API Orchestrator using CrewAI!! Here, in you can implement different 
-            swagger file integrations. Please upload the correct Swagger file, along with your OpenAI keys, 
-            API endpoint, and access keys to make necessary API calls. Once all the inputs have been 
-            provided, click on the 'Start Crew' button to fire the crew execution, and sit back and relax 
-            while the agent performs the requested tasks on your behalf with the least manual intervention!""",
-            styles=configuration.chat_styles
+            """Welcome to Multi-Agent API Orchestrator using CrewAI!! Here, in you can implement different swagger file integrations. Please upload the correct Swagger file, along with your OpenAI keys, API endpoint, and access keys to make necessary API calls. Once all the inputs have been provided, click on the 'Start Crew' button to fire the crew execution, and sit back and relax while the agent performs the requested tasks on your behalf with the least manual intervention!""",
+            styles=configuration.chat_styles,
+            stylesheets=[chat_stylesheet]
         ),
         user="System",
         respond=False,
