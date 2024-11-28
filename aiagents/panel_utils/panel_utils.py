@@ -53,45 +53,6 @@ class CustomPanelCallbackHandler(pn.chat.langchain.PanelCallbackHandler):
         self.chat_interface: pn.chat.ChatInterface = chat_interface
         self.agent_name: Optional[str] = None
 
-    # def on_agent_action(self, action: AgentAction, *args, **kwargs: Any) -> Any:
-    #     self.chat_interface.send(
-    #         f"Agent action: {action.log}",
-    #         respond=False,
-    #     )
-    #     return super().on_agent_action(action, *args, **kwargs)
-
-    # def on_agent_finish(self, finish: AgentFinish, *args, **kwargs: Any) -> Any:
-    #     self.chat_interface.send(
-    #         f"Agent finish: {finish.log}",
-    #         respond=False,
-    #     )
-    #     return super().on_agent_finish(finish, *args, **kwargs)
-
-    # def on_tool_start(
-    #     self, serialized: dict[str, Any], input_str: str, *args, **kwargs
-    # ):
-    #     self.chat_interface.send(
-    #         f"started tool: {serialized['name']}, other details: {serialized}, input str: {input_str}",
-    #         respond=False,
-    #     )
-    #     self._update_active(DEFAULT_AVATARS["tool"], serialized["name"])
-    #     self._stream(f"Tool input: {input_str}")
-    #     return super().on_tool_start(serialized, input_str, *args, **kwargs)
-
-    # def on_tool_end(self, output: str, *args, **kwargs):
-    #     self.chat_interface.send(
-    #         f"Tool output: {output}",
-    #         respond=False,
-    #     )
-    #     self._stream(output)
-    #     self._reset_active()
-    #     return super().on_tool_end(output, *args, **kwargs)
-
-    # def on_tool_error(
-    #     self, error: Union[Exception, KeyboardInterrupt], *args, **kwargs
-    # ):
-    #     return super().on_tool_error(error, *args, **kwargs)
-
     def on_chain_start(
         self, serialized: dict[str, Any], inputs: dict[str, Any], *args, **kwargs
     ):
@@ -120,11 +81,11 @@ class CustomPanelCallbackHandler(pn.chat.langchain.PanelCallbackHandler):
         print("role:", role)
         if role in possible_roles:
             self.agent_name = role.strip('"').strip("'")
-        if "this output contains the appropriate swagger metadata file to use for the task at hand" in outputs["output"].lower():
-            configuration.selected_swagger_file = search(
+        if "this output contains the appropriate API Specification metadata file to use for the task at hand" in outputs["output"].lower():
+            configuration.selected_API_Specification_file = search(
                 r'"file_name":\s*"([^"]+)"', outputs["output"]
             ).group(1).replace("_metadata", "")
-            print(configuration.selected_swagger_file)
+            print(configuration.selected_API_Specification_file)
         if "iteration limit" in outputs["output"] or "time limit" in outputs["output"]:
             message = outputs["output"] + "😵‍💫 Retrying..."
             self.chat_interface.send(
@@ -178,8 +139,8 @@ class CustomPanelCallbackHandler(pn.chat.langchain.PanelCallbackHandler):
             "Decision Validator Agent": "#fbe7dd",
             "API Caller Agent": "#ffe5f1",
             "Input Matcher": "#e6f3fd",
-            "Swagger API Description Summarizer": "#f3f9cf",
-            "swagger_splitter": "#eedaff",
+            "API Specification Description Summarizer": "#f3f9cf",
+            "API_Specification_splitter": "#eedaff",
         }
         card = pn.Card(
             markdown_input,

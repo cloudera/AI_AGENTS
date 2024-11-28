@@ -100,17 +100,17 @@ def validate_api_endpoint_input(*events):
             endpoint_alert.visible = True
 
 
-# Validate the uploaded Swagger file
-def validate_swagger_file_input(*events):
+# Validate the uploaded API Specification file
+def validate_API_Specification_file_input(*events):
     if file_input.value:
         try:
             validate(loads(file_input.value.decode()))
-            swagger_alert.visible = False # Hide the "invalid Swagger" alert if valid
+            API_Specification_alert.visible = False # Hide the "invalid API Specification" alert if valid
             check_input_value(*events)
         except Exception as e:
             print("API Specification Verification Error:", e)
             configuration.upload_button.disabled=True # Disable the Upload button
-            swagger_alert.visible = True # Show the "invalid Swagger file" alert if invalid
+            API_Specification_alert.visible = True # Show the "invalid API Specification file" alert if invalid
 
 
 # Check if input values are valid and enable the submit button if all checks pass
@@ -127,7 +127,7 @@ def check_input_value(*events):
         ) or(
             openai_provider_input.value == "OPENAI" and key_input.value
             and ml_api_input.value and url_input.value and file_input.value
-    )) and not swagger_alert.visible and not endpoint_alert.visible:
+    )) and not API_Specification_alert.visible and not endpoint_alert.visible:
         configuration.empty_inputs = False
         configuration.upload_button.disabled = False if not configuration.processing_file else True
     else:
@@ -235,15 +235,15 @@ ml_api_input = pn.widgets.PasswordInput(
 )
 file_input = pn.widgets.FileInput(name="Upload", accept=".json",multiple=False, width=360, stylesheets=[input_stylesheet])
 
-# Alert for invalid Swagger file
-swagger_alert = pn.pane.Alert(
+# Alert for invalid API Specification file
+API_Specification_alert = pn.pane.Alert(
     "!!The API Specification file uploaded is invalid. Please upload a valid file",
     alert_type="danger",
     width=360,
     stylesheets=[alert_stylesheet],
     css_classes=["alert"],
 )
-swagger_alert.visible = False
+API_Specification_alert.visible = False
 
 # Alert for invalid API endpoint
 endpoint_alert = pn.pane.Alert(
@@ -257,7 +257,7 @@ endpoint_alert.visible = False
 
 nl2api_configuration = pn.Card(
     file_input,
-    swagger_alert,
+    API_Specification_alert,
     url_input,
     endpoint_alert,
     ml_api_input,
@@ -280,7 +280,7 @@ key_input.param.watch(check_input_value, "value")
 url_input.param.watch(validate_api_endpoint_input, "value")
 url_input.param.watch(check_input_value, "value")
 ml_api_input.param.watch(check_input_value, "value")
-file_input.param.watch(validate_swagger_file_input, "value")
+file_input.param.watch(validate_API_Specification_file_input, "value")
 file_input.param.watch(check_input_value, "value")
 
 
@@ -324,7 +324,7 @@ def handle_inputs(event):
         if not get_key(env_file, "AZURE_OPENAI_ENDPOINT") or azure_endpoint_input.value:
             set_key(env_file, "AZURE_OPENAI_ENDPOINT", azure_endpoint_input.value)
 
-    # Handle the uploaded Swagger file: delete old file, create the directory, and save the new file
+    # Handle the uploaded API Specification file: delete old file, create the directory, and save the new file
     # if file_input.value:
     #     try:
     #         rmtree(configuration.generated_folder_path) # Remove old generated folder if it exists
@@ -332,12 +332,12 @@ def handle_inputs(event):
     #         pass
 
 
-    # If the directory for Swagger files does not exist, create it
-    if not path.exists(configuration.swagger_files_directory):
-        makedirs(configuration.swagger_files_directory)
-    # Save the uploaded Swagger file in the designated directory
+    # If the directory for API Specification files does not exist, create it
+    if not path.exists(configuration.API_Specification_files_directory):
+        makedirs(configuration.API_Specification_files_directory)
+    # Save the uploaded API Specification file in the designated directory
     file_path = path.join(
-        configuration.swagger_files_directory, file_input.filename
+        configuration.API_Specification_files_directory, file_input.filename
     )
     file_content = loads(file_input.value.decode())
     with open(file_path, "w") as file:
@@ -551,7 +551,7 @@ def main():
             """
         #### Accessing and Using the CML Workbench API Specification:
         - Sign in to Cloudera AI.
-        - Access the API specification for CML Workbench at `https://<domain name of Cloudera AI instance>/api/v2/swagger.json`
+        - Access the API specification for CML Workbench at `https://<domain name of Cloudera AI instance>/api/v2/API Specification.json`
         - Navigate to **User Settings** > **API Keys** and select **Create API Key**.
         - Copy the **API key** (bearer token) and the **domain name** from the browser’s address bar (e.g., `ml-xxxx123456.com`).
 

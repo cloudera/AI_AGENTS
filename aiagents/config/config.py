@@ -16,11 +16,8 @@ class Initialize:
         "Human Input Agent": "1_human_inputt.jpg",
         "get_human_input": "get_human_input.jpg",
         "Input Matcher": "2_task_matcherr.jpg",
-        # "Swagger API Description Summarizer": "3_metadata_summariser.jpg",
-        # "swagger_splitter": "4_swagger_splitter.jpg",
         "API Selector Agent": "3_api_selectorr.jpg",
         "Decision Validator Agent": "4_decision_validatorr.jpg",
-        # "API Caller Agent": "7_api_caller.jpg",
         "api_caller": "api_tool.jpg",
     }
 
@@ -33,15 +30,15 @@ class Initialize:
         self.project_root = environ.get("PROJECT_ROOT")
         self.app_port = int(environ.get("CDSW_APP_PORT", "8080"))
 
-        self.swagger_files_directory = environ.get(
-            "SWAGGER_FILES_DIRECTORY", f"{self.project_root}/swagger_files"
+        self.API_Specification_files_directory = environ.get(
+            "API_SPECIFICATION_FILES_DIRECTORY", f"{self.project_root}/API_Specification_files"
         )
-        self.generated_folder_path = join(self.swagger_files_directory, "generated")
+        self.generated_folder_path = join(self.API_Specification_files_directory, "generated")
         self.metadata_summaries_path = join(
             self.generated_folder_path, "summaries", "metadata_summaries"
         )
         self.openai_provider = "AZURE_OPENAI"
-        self.selected_swagger_file = ""
+        self.selected_API_Specification_file = ""
         self.user_input = None
         self.first_run = pn.Param.param
         self.current_agent = "" 
@@ -66,10 +63,7 @@ class Initialize:
             "Human Input Agent": f"{self.diagram_path}/human_input_agent.jpg",
             "API Selector Agent": f"{self.diagram_path}/api_selector_agent.jpg",
             "Decision Validator Agent": f"{self.diagram_path}/decision_validator_agent.jpg",
-            # "API Caller Agent": f"{self.diagram_path}/api_caller_agent.jpg",
             "Input Matcher": f"{self.diagram_path}/task_matcher_agent.jpg",
-            # "Swagger API Description Summarizer": f"{self.diagram_path}/metadata_summarizer_agent.jpg",
-            # "swagger_splitter": f"{self.diagram_path}/swagger_splitter_agent.jpg",
         }
         self.chat_styles={
             "font-size": "0.87rem",

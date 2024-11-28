@@ -8,9 +8,9 @@ from dotenv import find_dotenv, get_key, load_dotenv, set_key
 import panel as pn
 from bokeh.server.contexts import BokehSessionContext
 from aiagents.cml_agents.manager_agents import ManagerAgents
-from aiagents.cml_agents.swagger_splitter import SwaggerSplitterAgents
+from aiagents.cml_agents.swagger_splitter import APISpecificationSplitterAgents
 from aiagents.cml_agents.agents import Agents
-from aiagents.cml_agents.parse_for_manager import swagger_parser
+from aiagents.cml_agents.parse_for_manager import API_Specification_parser
 from aiagents.cml_agents.callback_utils import custom_callback, custom_initialization_callback
 from aiagents.cml_agents.tasks import Tasks, TasksInitialize
 
@@ -23,19 +23,8 @@ from aiagents.panel_utils.panel_stylesheets import chat_stylesheet
 # we can't directly import the agents and tasks because we want to ensure that the configuration is first
 # initialize the configuration with panel hooks, and then pass it as an argument
 def StartCrewInitialization(configuration: Initialize):
-    #manager_agents = ManagerAgents(configuration=configuration)
-    swagger_splitter_agents = SwaggerSplitterAgents(configuration=configuration)
-    #agents = Agents(configuration=configuration)
-    ##please call swagger splitter here
-
-    ## if generated folder has any entries delete the same.
-
-    # """Delete all files and subdirectories inside the specified directory."""
-    # if os.path.exists(configuration.generated_folder_path):
-    #     # Remove the directory and all its contents
-    #     shutil.rmtree(configuration.generated_folder_path)
-    #     # Recreate the empty directory
-    #     os.makedirs(configuration.generated_folder_path)
+    API_Specification_splitter_agents = APISpecificationSplitterAgents(configuration=configuration)
+   
 
     env_file = find_dotenv()
     load_dotenv(env_file)
@@ -62,16 +51,16 @@ def StartCrewInitialization(configuration: Initialize):
         configuration.initialization_spinner.visible = True
         configuration.initialization_spinner.value = True
 
-    for filename in listdir(configuration.swagger_files_directory):
+    for filename in listdir(configuration.API_Specification_files_directory):
             if filename == configuration.new_file_name:
-                swagger_parser(
+                API_Specification_parser(
                     filename,
-                    configuration.swagger_files_directory,
+                    configuration.API_Specification_files_directory,
                     configuration.generated_folder_path,
                 )
     agent_dict = {
-        # "swagger_splitter_agent": swagger_splitter_agents.swagger_splitter_agent,
-        "metadata_summarizer_agent": swagger_splitter_agents.metadata_summarizer_agent,
+        # "API_Specification_splitter_agent": API_Specification_splitter_agents.API_Specification_splitter_agent,
+        "metadata_summarizer_agent": API_Specification_splitter_agents.metadata_summarizer_agent,
     }
     tasks = TasksInitialize(configuration=configuration, agents=agent_dict)
     embedding = {
@@ -95,20 +84,10 @@ def StartCrewInitialization(configuration: Initialize):
 
     splitterCrew = Crew(
         agents=[
-            # agent_dict["swagger_splitter_agent"],
             agent_dict["metadata_summarizer_agent"],
-            # agent_dict["task_matching_agent"],
-            # agent_dict["manager_agent"],
-            # agent_dict["human_input_agent"],
-            # # agent_dict["api_caller_agent"],
-            # agent_dict["validator_agent"],
         ],
         tasks=[
             tasks.metadata_summarizer_task,
-            # tasks.initial_human_input_task,
-            # tasks.task_matching_task,
-            # tasks.manager_task,
-            # tasks.api_calling_task,
         ],
         verbose=1,
         memory=False,
@@ -183,12 +162,9 @@ def StartCrewInteraction(configuration: Initialize):
 
 
     agent_dict = {
-        # "swagger_splitter_agent": swagger_splitter_agents.swagger_splitter_agent,
-        #"metadata_summarizer_agent": swagger_splitter_agents.metadata_summarizer_agent,
         "task_matching_agent": manager_agents.task_matching_agent,
         "manager_agent": manager_agents.manager_agent,
         "human_input_agent": agents.human_input_agent,
-        # "api_caller_agent": agents.api_caller_agent,
         "validator_agent": agents.validator_agent,
     }
 
@@ -215,20 +191,15 @@ def StartCrewInteraction(configuration: Initialize):
 
     splitterCrew = Crew(
         agents=[
-            # agent_dict["swagger_splitter_agent"],
-            #agent_dict["metadata_summarizer_agent"],
             agent_dict["task_matching_agent"],
             agent_dict["manager_agent"],
             agent_dict["human_input_agent"],
-            # agent_dict["api_caller_agent"],
             agent_dict["validator_agent"],
         ],
         tasks=[
-            #tasks.metadata_summarizer_task,
             tasks.initial_human_input_task,
             tasks.task_matching_task,
             tasks.manager_task,
-            # tasks.api_calling_task,
         ],
         verbose=1,
         memory=False,

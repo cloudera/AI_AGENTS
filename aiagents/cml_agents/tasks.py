@@ -8,20 +8,6 @@ from aiagents.config import Initialize
 
 class TasksInitialize:
     def __init__(self, configuration: Initialize, agents: Dict[str, Agent]) -> None:
-        # self.splitter_task = Task(
-        #     description=dedent(
-        #         """
-        #         Find all the swagger files present in the target swagger directory and then split each swagger file.
-        #         * If the folder called 'generated' is already present, consider this task as complete, and take no 
-        #         further actions.
-        #         * If the generated folder is not present, run the swagger splitter tool.
-                
-        #         Make no assumptions whatsoever.
-        #         """
-        #     ),
-        #     expected_output="A concise answer stating the exact location of all the generated swagger metadata files.",
-        #     agent=agents["swagger_splitter_agent"],
-        # )
 
         class metadata_summaries(BaseModel):
             summaries: dict[str, str]
@@ -29,9 +15,9 @@ class TasksInitialize:
         self.metadata_summarizer_task = Task(
             description=dedent(
                 f"""
-                Trigger the 'summary_generator' tool. This tool will automatically pick up the necessary swagger files
+                Trigger the 'summary_generator' tool. This tool will automatically pick up the necessary API Specification files
                 from the {configuration.generated_folder_path}, and generate a summary for each of them. It outputs a structured
-                k:v pair json, where the key is the location of the summarized swagger file, and the value is 
+                k:v pair json, where the key is the location of the summarized API Specification file, and the value is 
                 the generated summary.
 
                 If the metadata summary has already been generated, consider this task as complete, and take no 
@@ -53,45 +39,6 @@ class TasksInitialize:
 
 class Tasks:
     def __init__(self, configuration: Initialize, agents: Dict[str, Agent]) -> None:
-        # self.splitter_task = Task(
-        #     description=dedent(
-        #         """
-        #         Find all the swagger files present in the target swagger directory and then split each swagger file.
-        #         * If the folder called 'generated' is already present, consider this task as complete, and take no 
-        #         further actions.
-        #         * If the generated folder is not present, run the swagger splitter tool.
-                
-        #         Make no assumptions whatsoever.
-        #         """
-        #     ),
-        #     expected_output="A concise answer stating the exact location of all the generated swagger metadata files.",
-        #     agent=agents["swagger_splitter_agent"],
-        # )
-
-        # class metadata_summaries(BaseModel):
-        #     summaries: dict[str, str]
-
-        # self.metadata_summarizer_task = Task(
-        #     description=dedent(
-        #         f"""
-        #         Trigger the 'summary_generator' tool. This tool will automatically pick up the necessary swagger files
-        #         from the {configuration.generated_folder_path}, and generate a summary for each of them. It outputs a structured
-        #         k:v pair json, where the key is the location of the summarized swagger file, and the value is 
-        #         the generated summary.
-
-        #         If the metadata summary has already been generated, consider this task as complete, and take no 
-        #         further actions.
-
-        #         Make no assumptions whatsoever.
-        #         """
-        #     ),
-        #     expected_output="A concise answer stating the exact location of the final generated metadata summary file.",
-        #     agent=agents["metadata_summarizer_agent"],
-        #     #output_json=metadata_summaries,
-        #     output_file=f"{configuration.generated_folder_path}/metadata_summaries",
-        #     # context=[self.splitter_task],
-        # )
-
         class humanInputOutput(BaseModel):
             """
             This class is used to store the decision made by the input matcher agent. It has several fields:
@@ -125,10 +72,10 @@ class Tasks:
         class inputMatcherDecision(BaseModel):
             """
             This class is used to store the decision made by the input matcher agent. It has several fields:
-            - file_name: The file name of the appropriate swagger metadata file chosen.
-            - file_location: The path or location of the appropriate swagger metadata file chosen.
-            - task: The task at hand for which the swagger file was chosen.
-            - reason: The reasoning behind why the input matcher agent has decided to use this particular swagger metadata file.
+            - file_name: The file name of the appropriate API Specification metadata file chosen.
+            - file_location: The path or location of the appropriate API Specification metadata file chosen.
+            - task: The task at hand for which the API Specification file was chosen.
+            - reason: The reasoning behind why the input matcher agent has decided to use this particular API Specification metadata file.
             - description: The description of this class used to identify the output
             - role: The role of the agent executing the task
             """
@@ -137,12 +84,12 @@ class Tasks:
             file_location: str
             task: str
             reason: str
-            description: str = Field("This output contains the appropriate swagger metadata file to use for the task at hand", frozen=True)
+            description: str = Field("This output contains the appropriate API Specification metadata file to use for the task at hand", frozen=True)
             role: str
 
             @field_validator('description')
             def set_fixed_method(cls, v):
-                return "This output contains the appropriate swagger metadata file to use for the task at hand"
+                return "This output contains the appropriate API Specification metadata file to use for the task at hand"
 
         self.task_matching_task = Task(
             description=dedent(
@@ -150,31 +97,31 @@ class Tasks:
                 Complete the following steps:
                 1. Fetch Metadata Summary:
                     1. Use the 'file read tool' to retrieve the metadata summary file. Ensure the contents are fully loaded before proceeding. If and only if no metadata summary file is available, return an error message indicating no API spec is available and Finish Execution by throwing an error with apt messaging..
-                2. Identify the Relevant Swagger File:
-                    1. Review the metadata file, which consists of key-value pairs where each key is the path of a Swagger file and each value is a summary.
-                    2. Based on the context provided by the human input task, analyze the summaries to determine which Swagger file aligns best with the task requirements.
-                3. Infer the Best Swagger File:
-                    1. Critical step: If the summaries are unclear or do not directly indicate the appropriate Swagger file, make a logical assumption based on the descriptions and your understanding of the task.
-                    2. Prioritize selecting the Swagger file that most closely matches the user's query and the context of the task.
+                2. Identify the Relevant API Specification File:
+                    1. Review the metadata file, which consists of key-value pairs where each key is the path of a API Specification file and each value is a summary.
+                    2. Based on the context provided by the human input task, analyze the summaries to determine which API Specification file aligns best with the task requirements.
+                3. Infer the Best API Specification File:
+                    1. Critical step: If the summaries are unclear or do not directly indicate the appropriate API Specification file, make a logical assumption based on the descriptions and your understanding of the task.
+                    2. Prioritize selecting the API Specification file that most closely matches the user's query and the context of the task.
                 4. Confirm with the User (Optional):
                     1. If multiple API options are available, or if you are uncertain about your choice, use the 'get_human_input' tool to confirm your decision with the user.
-                    2. Provide a clear explanation of why you selected this particular Swagger API.
+                    2. Provide a clear explanation of why you selected this particular API Specification API.
                     3. If only one option exists or you are highly confident, you can skip this step and proceed directly.
-                5. Return Swagger Metadata Location:
-                    1. Once the appropriate Swagger file is identified, format the result in the exact structure required by the 'inputMatcherDecision' class.
-                    2. Include the description: "This output contains the appropriate swagger metadata file to use for the task at hand."
+                5. Return API Specification Metadata Location:
+                    1. Once the appropriate API Specification file is identified, format the result in the exact structure required by the 'inputMatcherDecision' class.
+                    2. Include the description: "This output contains the appropriate API Specification metadata file to use for the task at hand."
                     3. Finish execution.
                 """
             ),
-            expected_output="A concise answer stating the exact location of the appropriate swagger metadata file, "
+            expected_output="A concise answer stating the exact location of the appropriate API Specification metadata file, "
             f"""as well as the reason why it is the one that has been chosen. The output should be of the structure 
             of the inputMatcherDecision class. It has several fields:
-                - file_name: The file name of the appropriate swagger metadata file chosen.
-                - file_location: The path or location of the appropriate swagger metadata file chosen.
-                - task: The task at hand for which the swagger file was chosen.
-                - reason: The reasoning behind why the input matcher agent has decided to use this particular swagger metadata file.
+                - file_name: The file name of the appropriate API Specification metadata file chosen.
+                - file_location: The path or location of the appropriate API Specification metadata file chosen.
+                - task: The task at hand for which the API Specification file was chosen.
+                - reason: The reasoning behind why the input matcher agent has decided to use this particular API Specification metadata file.
                 - description: The description of this class which will be used to identify the output = 'This output contains 
-                the appropriate swagger metadata file to use for the task at hand'
+                the appropriate API Specification metadata file to use for the task at hand'
                 - role: The value of {agents['task_matching_agent'].role}
             """,
             output_json=inputMatcherDecision,
@@ -254,7 +201,7 @@ class Tasks:
                 1. Read the Metadata File:
                     1. Use the 'file read tool' to access the metadata file. The file location can be found in the context provided by the 'input matcher' agent.
                 2. Select Endpoint and HTTP Method:
-                    1. Analyze the metadata to identify the Swagger file that contains the endpoint most suited to the user query.
+                    1. Analyze the metadata to identify the API Specification file that contains the endpoint most suited to the user query.
                     2. Match the user’s query to endpoint descriptions by evaluating the similarity between the user's intent and the function of the endpoint.
                 3. Justify Endpoint Selection using Decision Validator Agent:
                     1. Present the selected endpoint and HTTP method to the 'decision validator' agent, explaining how it aligns with the user’s query. 
@@ -263,7 +210,7 @@ class Tasks:
                     1. If the 'decision validator' agent provides feedback, revise the selection and justify the change. 
                     2. Ensure the updated selection addresses the user's query, and seek validation again if necessary.
                 5. Provide Parameters to User:
-                    1. Extract both required and optional parameters from the selected endpoint's Swagger file.
+                    1. Extract both required and optional parameters from the selected endpoint's API Specification file.
                     2. Present the user with a clear list of required and optional parameters:
                         1. Required parameters: List them along with brief descriptions.
                         2. Optional parameters: Highlight optional parameters and describe how they enhance functionality.
@@ -271,7 +218,7 @@ class Tasks:
                     1. Prompt the user to provide values for the required parameters based on the last step. Ensure that the request is polite and clear.
                     2. Proceed without optional parameters or use default values unless the user provides them or requests to include them.
                 7. Respond to Additional Queries:
-                    1. If the user requests further related information (e.g., related endpoints, more data from the Swagger file, 
+                    1. If the user requests further related information (e.g., related endpoints, more data from the API Specification file, 
                     or related API calls), assist them accordingly by retrieving the relevant details or making additional API calls as needed.
                 8. Build and Confirm Payload:
                     1. Construct the final payload for the API call using the user-provided values for the parameters.
@@ -313,9 +260,9 @@ class Tasks:
         #         """
         #         Complete the following steps to make the API call, using the context obtained from the manager_task:
         #         1. Identify the API Call:
-        #             1. Using the context from the 'manager_task', locate the Swagger metadata file to identify the API endpoint required by the user. The full path for the API call file can be constructed by combining the manager task details with the '{configuration.generated_folder_path}'.
+        #             1. Using the context from the 'manager_task', locate the API Specification metadata file to identify the API endpoint required by the user. The full path for the API call file can be constructed by combining the manager task details with the '{configuration.generated_folder_path}'.
         #         2. Determine Parameters:
-        #             1. Review the Swagger file to extract both required and optional parameters for the API call.
+        #             1. Review the API Specification file to extract both required and optional parameters for the API call.
         #             2. Provide the user with a well-formatted list of these parameters:
         #                 1. Required parameters: Specify which parameters are mandatory for the call to succeed and give a brief description of each.
         #                 2. Optional parameters: List optional parameters with a short description, indicating they are not necessary for the basic functionality but can provide extra control.

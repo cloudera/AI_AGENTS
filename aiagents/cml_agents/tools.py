@@ -20,7 +20,7 @@ from typing import Dict
 
 from aiagents.config import configuration
 
-from .parse_for_manager import swagger_parser
+from .parse_for_manager import API_Specification_parser
 
 from aiagents.panel_utils.panel_stylesheets import chat_stylesheet
 
@@ -42,26 +42,26 @@ generated_directory_lister = Tool(
     description=dedent(
         f"""
         This tool will list all the files in the '{configuration.generated_folder_path}' directory and no other. It takes 
-        'input: {{}}' as the argument. It will return the list of files in the swagger directory separated by newlines.
-        The swagger files that need to be read are the ones that end with '.json'.
+        'input: {{}}' as the argument. It will return the list of files in the API Specification directory separated by newlines.
+        The API Specification files that need to be read are the ones that end with '.json'.
         """
     ),
 )
 
-swagger_directory_lister = Tool(
-    name="swagger_directory_lister",
+API_Specification_directory_lister = Tool(
+    name="API_Specification_directory_lister",
     # use langchain toolkit to list all the files in the generated folder
     func=FileManagementToolkit(
-        root_dir=configuration.swagger_files_directory,
+        root_dir=configuration.API_Specification_files_directory,
         selected_tools=["list_directory"],
     )
     .get_tools()[0]
     .run,
     description=dedent(
         f"""
-        This tool will list all the files in the '{configuration.swagger_files_directory}' directory and no other. It takes 
-        'input: {{}}' as the argument. It will return the list of files in the swagger directory separated by newlines.
-        The swagger files that need to be read are the ones that end with '.json'.
+        This tool will list all the files in the '{configuration.API_Specification_files_directory}' directory and no other. It takes 
+        'input: {{}}' as the argument. It will return the list of files in the API Specification directory separated by newlines.
+        The API Specification files that need to be read are the ones that end with '.json'.
         """
     ),
 )
@@ -120,7 +120,7 @@ def update_env_variables(*, API_ENDPOINT: str = None, API_BEARER_TOKEN: str = No
             if get_key(env_file, "API_ENDPOINT")
             else {}
         )
-        api_endpoint[configuration.selected_swagger_file] = API_ENDPOINT
+        api_endpoint[configuration.selected_API_Specification_file] = API_ENDPOINT
         set_key(env_file, "API_ENDPOINT", api_endpoint, quote_mode="never")
 
     if API_BEARER_TOKEN:
@@ -130,39 +130,8 @@ def update_env_variables(*, API_ENDPOINT: str = None, API_BEARER_TOKEN: str = No
             if get_key(env_file, "API_BEARER_TOKEN")
             else {}
         )
-        api_bearer_token[configuration.selected_swagger_file] = API_BEARER_TOKEN
+        api_bearer_token[configuration.selected_API_Specification_file] = API_BEARER_TOKEN
         set_key(env_file, "API_BEARER_TOKEN", api_bearer_token, quote_mode="never")
-
-# class SwaggerSplitter(BaseTool):
-#     """
-#     This tool splits will swagger file into multiple files."
-#     """
-
-#     name: str = "swagger_splitter"
-#     description: str = (
-#         """This tool splits will swagger file into multiple files, and generates a metadata file."""
-#         """This tool accepts no input parameters, so just pass '{"input": {}}' as input."""
-#     )
-
-#     def _run(self) -> str:
-#         if exists(configuration.generated_folder_path):
-#             return dedent(
-#                 """
-#                     Swagger splitter has already run. If a user wants to force a rerun,
-#                     they need to delete the 'generated' folder. If there exists no metadata summaries,
-#                     or you fail to read the directory, you must run the Swagger API Description Summarizer.
-#                     Exiting.
-#                 """
-#             )
-#         for filename in listdir(configuration.swagger_files_directory):
-#             if filename.endswith(".json"):
-#                 swagger_parser(
-#                     filename,
-#                     configuration.swagger_files_directory,
-#                     configuration.generated_folder_path,
-#                 )
-
-#         return f"""Swagger splitter has run successfully. The generated swagger files are in the directory {configuration.generated_folder_path}."""
 
 
 class SummaryGenerator(BaseTool):
@@ -188,7 +157,7 @@ class SummaryGenerator(BaseTool):
             exist_ok=True,
         )
 
-        swagger_summaries = {}
+        API_Specification_summaries = {}
 
         human_template = """
         Generate a summary of the below provided metadata that is descriptive and concise. 
@@ -224,12 +193,12 @@ class SummaryGenerator(BaseTool):
                 prompt = prompt_template.format(json_content=json_content)
                 message = HumanMessage(content=prompt)
                 results = llm(messages=[message])
-                swagger_summaries[
+                API_Specification_summaries[
                     join(configuration.generated_folder_path, filename)
                 ] = results.content
 
         dump(
-            swagger_summaries,
+            API_Specification_summaries,
             open(
                 configuration.metadata_summaries_path,
                 "w",
@@ -274,7 +243,7 @@ class APICaller(BaseTool):
         print("The parameters received are:", path, "\n", method, "\n", parameters, "\n", args, "\n", kwargs)
         load_dotenv(find_dotenv(), override=True)
         base_url = kwargs.get("API_ENDPOINT") if "API_ENDPOINT" in kwargs else \
-        loads(environ.get("API_ENDPOINT").replace("'", '"'))[configuration.selected_swagger_file]
+        loads(environ.get("API_ENDPOINT").replace("'", '"'))[configuration.selected_API_Specification_file]
         base_url = base_url.rstrip("/")
         url = base_url + path
 
@@ -285,7 +254,7 @@ class APICaller(BaseTool):
             del parameters["body"]
 
         bearer_token = kwargs.get("API_BEARER_TOKEN") if "API_BEARER_TOKEN" in kwargs else \
-        loads(environ.get("API_BEARER_TOKEN").replace("'", '"'))[configuration.selected_swagger_file]
+        loads(environ.get("API_BEARER_TOKEN").replace("'", '"'))[configuration.selected_API_Specification_file]
         
         headers = {"Authorization": f"Bearer {bearer_token}"}
 
@@ -314,7 +283,5 @@ class APICaller(BaseTool):
         else:
             return response._content.decode("utf-8")
 
-
-# swagger_splitter = SwaggerSplitter()
 summary_generator = SummaryGenerator()
 api_caller = APICaller()
