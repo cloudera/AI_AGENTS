@@ -46,7 +46,7 @@ def StartCrewInitialization(configuration: Initialize):
         file_count = 0
     if file_count >= 1:
         configuration.metadata_summarization_status.value = (
-            f"Processing the API Spec file {configuration.new_file_name} ⏱" 
+            f"Processing the API Specification file {configuration.new_file_name} ⏱" 
         )
     else:
         configuration.chat_interface.send(

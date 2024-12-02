@@ -163,10 +163,13 @@ class CustomPanelCallbackHandler(pn.chat.langchain.PanelCallbackHandler):
         )
         markdown_input.styles = custom_style
         color = {
-            "Human Input Agent": "#e2fcfd",
-            "API Selector Agent": "#fef6db",
-            "Decision Validator Agent": "#fbe7dd",
+            "Human Input Agent": "#80e5e9",
+            "API Selector Agent": "#fcde77",
+            "Decision Validator Agent": "#ffb568",
             "API Caller Agent": "#ffe5f1",
+            "Input Matcher": "#81c3f6",
+            "API Specification Description Summarizer": "#f3f9cf",
+            "API_Specification_splitter": "#eedaff",
             "Input Matcher": "#e6f3fd",
             "Swagger API Description Summarizer": "#f3f9cf",
             "swagger_splitter": "#eedaff",
