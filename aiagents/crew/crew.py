@@ -71,7 +71,6 @@ def StartCrewInitialization(configuration: Initialize):
                     configuration.generated_folder_path,
                 )
     agent_dict = {
-        # "swagger_splitter_agent": swagger_splitter_agents.swagger_splitter_agent,
         "metadata_summarizer_agent": swagger_splitter_agents.metadata_summarizer_agent,
     }
     tasks = TasksInitialize(configuration=configuration, agents=agent_dict)
