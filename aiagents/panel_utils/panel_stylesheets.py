@@ -28,6 +28,7 @@ input_stylesheet = """
         padding: 0.5rem;
         margin: 0.7rem;
         border: 0.09rem solid #939893;
+        cursor: pointer; 
     }
 """
 
@@ -119,7 +120,18 @@ card_stylesheet = """
         margin: 0.3rem; 
     }
     .bk-Row.chat-interface-input-container {
-        margin: 0 40px;
+        margin: -0.5rem 40px;
+        width: calc(100vw - 400px - 10.5rem);
+    }
+    textarea.bk-input:not([type='file']) {
+        background-color: #f6f1f1;
+        border-radius: 10px;
+        border: 0.05rem solid #666;
+        padding: 0.55rem 1.5rem;
+        font-size: 0.85rem;
+        margin-right: 3rem;
+        margin-bottom: 0.25rem;
+        width: calc(100vw - 400px - 10.5rem);
     }
 """
 
@@ -132,11 +144,12 @@ nl2api_stylesheet = """
 sidebar_styles = {
     "border-bottom": "0.15rem solid #c0caca",
     "border-radius": "0.25rem",
-    "max-height": "calc(100vh - 80px)",
-    "min-height": "calc(100vh - 80px)",
+    "max-height": "calc(100vh - 4.45rem)",
+    "min-height": "calc(100vh - 4.45rem)",
     "overflow-y":"auto",
-    "margin":"-0.3rem 0.1rem",
-    "padding":"0.5rem 0.1rem", 
+    "margin":"-0.6rem 0 -0.6rem 0.05rem",
+    "padding":"0.5rem 0.1rem",
+    "background-color": "#fff",
 }
 
 input_button_styles = {

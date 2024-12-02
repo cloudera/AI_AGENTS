@@ -64,23 +64,22 @@ class CustomPanelCallbackHandler(pn.chat.langchain.PanelCallbackHandler):
 
         self.send_event(
             "Started Task",
-            inputs["input"],
+            re.sub(r'\bswagger\b', 'API Specification', inputs["input"], flags=re.IGNORECASE),
             user,
         )
         configuration.reload_button.disabled = False
 
     def on_chain_end(self, outputs: dict[str, Any], *args, **kwargs):
         print(dumps(outputs, indent=2))
-        role = output_formatter(outputs["output"])
+        role = re.sub(r"[^a-zA-Z\s]", "", output_formatter(outputs["output"])).strip()
         possible_roles = [
             "Human Input Agent",
             "API Selector Agent",
             "Decision Validator Agent",
             "Input Matcher",
         ]
-        print("role:", role)
         if role in possible_roles:
-            self.agent_name = role.strip('"').strip("'")
+            self.agent_name = role
         if "this output contains the appropriate API Specification metadata file to use for the task at hand" in outputs["output"].lower():
             configuration.selected_API_Specification_file = search(
                 r'"file_name":\s*"([^"]+)"', outputs["output"]
@@ -90,24 +89,14 @@ class CustomPanelCallbackHandler(pn.chat.langchain.PanelCallbackHandler):
             message = outputs["output"] + "😵‍💫 Retrying..."
             self.chat_interface.send(
                 pn.pane.Alert(message, alert_type='warning', styles=configuration.chat_styles), 
-                user="System", respond=False
+                user="System", respond=False,
+                avatar=pn.pane.Image(f"{configuration.diagram_path}/system.svg", styles={"margin-top": "1rem", "padding": "1.5rem"})
             )
         else:
             self.send_event(
                 "Ended Task",
                 outputs["output"],
                 self.agent_name,
-            )
-        if "reload the crew" in outputs["output"].lower():
-            configuration.spinner.value=False
-            configuration.spinner.visible=False
-            self.chat_interface.send(
-                pn.pane.Markdown(
-                    object="If you have any other queries or need further assistance, please Reload the Crew.",
-                    styles=configuration.chat_styles,
-                    stylesheets=[chat_stylesheet],
-                ),
-                user=self.agent_name, respond=False
             )
         configuration.reload_button.disabled = False
 
@@ -128,6 +117,7 @@ class CustomPanelCallbackHandler(pn.chat.langchain.PanelCallbackHandler):
             "max-height": "20em",
             "margin": "0.7rem",
             "display":"block",
+            "width":"100%",
         }
         markdown_input = pn.pane.Markdown(
             object=message,
@@ -159,6 +149,7 @@ class CustomPanelCallbackHandler(pn.chat.langchain.PanelCallbackHandler):
             styles={
                 "border-bottom": "0.1rem solid #c0caca",
                 "border-radius": "0.25rem !important",
+                "background-color": "#f9fefe"
             },
             stylesheets=[card_stylesheet]
         )
@@ -168,7 +159,7 @@ class CustomPanelCallbackHandler(pn.chat.langchain.PanelCallbackHandler):
             card,
             user=user,
             respond=False,
-            avatar=f"{configuration.avatar_images[user]}",
+            avatar=pn.pane.Image(f"{configuration.avatar_images[user]}", styles={"margin-top": "1rem", "padding": "1.5rem"}),
         )
         time.sleep(1)
         configuration.spinner.value = True

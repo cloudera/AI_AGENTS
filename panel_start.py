@@ -62,19 +62,28 @@ def callback(contents: str, user: str, instance: pn.chat.ChatInterface):
 # Initialize a loading spinner that will be displayed when a process is running
 configuration.spinner = pn.indicators.LoadingSpinner(
     value=False, visible=False, height=30, width=30,
-    styles={"margin-top":"-2.8rem"}
+    styles={"margin-top":"-2.3rem"}
 )
 
 configuration.initialization_spinner = pn.indicators.LoadingSpinner(
     value=False, visible=False, height=30, width=30, color="secondary",
-    styles={"margin-top":"-2.8rem"}
+    styles={"margin-top":"-2.3rem"}
 )
 
 # Define the chat interface with a custom callback function
 configuration.chat_interface = pn.chat.ChatInterface(
-    callback=callback, show_rerun=False, show_undo=False, show_clear=False,
-    stylesheets=[card_stylesheet]
+    callback=callback, show_rerun=False, show_undo=False, show_clear=False, show_button_name=False,
+    widgets=[pn.chat.ChatAreaInput(
+        placeholder="Send your Message", 
+        disabled=True, 
+        stylesheets=[card_stylesheet], 
+        resizable=False
+    )],
+    stylesheets=[card_stylesheet],
+    avatar=pn.pane.Image(f"{configuration.diagram_path}/user.svg", styles={"margin-top": "1rem", "padding": "1.5rem"}),
+    user="Me",
 )
+configuration.chat_interface.message_params = {"reaction_icons": pn.chat.ChatReactionIcons(options={})}
 
 
 
@@ -386,12 +395,13 @@ def reset_for_new_input(event):
     configuration.spinner.value = False
     configuration.chat_interface.send(
         pn.pane.Markdown(
-            "The crew has been reloaded.", 
+            "The crew has been restarted.", 
             styles=configuration.chat_styles,
             stylesheets=[chat_stylesheet]
         ),
         user="System",
-        respond=False
+        respond=False,
+        avatar=pn.pane.Image(f"{configuration.diagram_path}/system.svg", styles={"margin-top": "1rem", "padding": "1.5rem"})
     )
     create_session_without_start_button()
 
@@ -417,12 +427,13 @@ def reload_post_callback(event):
     # Send a welcome message to the chat interface after reloading the session
     configuration.chat_interface.send(
         pn.pane.Markdown(
-            """The crew has been reloaded. Please enter further query below once the Human Input Agent Appears.""",
+            """The crew has been restarted. Please enter further query below once the Human Input Agent Appears.""",
             styles=configuration.chat_styles,
             stylesheets=[chat_stylesheet]
         ),
         user="System",
         respond=False,
+        avatar=pn.pane.Image(f"{configuration.diagram_path}/system.svg", styles={"margin-top": "1rem", "padding": "1.5rem"})
     )
 
 
@@ -478,7 +489,7 @@ configuration.sidebar = pn.Column(
         pn.Row(configuration.reload_button),
         styles=sidebar_styles, 
         hide_header=True,
-        width=400
+        width=405
     ),
     stylesheets=[card_stylesheet],
 )
@@ -515,6 +526,7 @@ def main():
         sidebar=pn.Column(configuration.sidebar),
         accent="#2F4F4F",
         sidebar_width=400,
+        main_layout=None,
     )
     template.theme_toggle = False # Disable theme toggle button in the template
     # Combine the chat interface and loading spinner into the main layout
@@ -544,6 +556,7 @@ def main():
         ),
         user="System",
         respond=False,
+        avatar=pn.pane.Image(f"{configuration.diagram_path}/system.svg", styles={"margin-top": "1rem", "padding": "1.5rem"}),
     )
 
     configuration.chat_interface.send(
@@ -553,7 +566,7 @@ def main():
         - Sign in to Cloudera AI.
         - Access the API specification for CML Workbench at `https://<domain name of Cloudera AI instance>/api/v2/API Specification.json`
         - Navigate to **User Settings** > **API Keys** and select **Create API Key**.
-        - Copy the **API key** (bearer token) and the **domain name** from the browser’s address bar (e.g., `ml-xxxx123456.com`).
+        - Copy the **API key** (bearer token) and the **domain endpoint** (API endpoint) from the browser’s address bar (e.g., `https://ml-xxxx123456.com`).
 
         Example Tasks that the Agent Can Perform With the given API Specification:
         - Create a project
@@ -565,6 +578,7 @@ def main():
         ),
         user="System",
         respond=False,
+        avatar=pn.pane.Image(f"{configuration.diagram_path}/system.svg", styles={"margin-top": "1rem", "padding": "1.5rem"})
     )
 
     print("Running panel on port ", configuration.app_port)

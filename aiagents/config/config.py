@@ -60,14 +60,15 @@ class Initialize:
             value=f"{self.diagram_path}/{self.diagrams['full']}"
         )
         self.avatar_images = {
-            "Human Input Agent": f"{self.diagram_path}/human_input_agent.jpg",
+            "Human Input Agent": f"{self.diagram_path}/human_input_agent.svg",
             "API Selector Agent": f"{self.diagram_path}/api_selector_agent.jpg",
             "Decision Validator Agent": f"{self.diagram_path}/decision_validator_agent.jpg",
             "Input Matcher": f"{self.diagram_path}/task_matcher_agent.jpg",
         }
         self.chat_styles={
             "font-size": "0.87rem",
-            "background-color": "#f6fafa"
+            "background-color": "#f9fefe",
+            "min-height": "2.5rem"
         }
         self.initialization_crew_thread: threads.thread_with_trace = None
         self.crew_thread: threads.thread_with_trace = None

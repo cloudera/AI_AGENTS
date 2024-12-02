@@ -1,6 +1,24 @@
-# aiagents
+# Multi-Agent API Orchestrator using CrewAI
 
-## Structure and Components
+### Welcome to the Multi-Agent API Orchestrator
+
+Get started by configuring your model and API integrations. We support both **Azure OpenAI** and **OpenAI** services. Please follow the steps below:
+
+#### Configuration Steps
+- **Azure OpenAI**: Provide the deployment name, endpoint URL, embedding deployment name, and API key.
+- **OpenAI**: Simply provide your OpenAI API key to enable model integration.
+
+#### Natural Language (NL) to API Integration
+- **Upload API Specification**: Upload a valid API Specification file.
+- **API Endpoint**: Enter the API endpoint for the integration.
+- **API Bearer Token**: Provide the bearer token to enable secure API authentication.
+
+Once all details are entered, click **Upload** to validate your inputs and initiate the orchestration process. **Streamline API orchestration** with CrewAI—handle complexities effortlessly and focus on results.""",
+
+
+The framework is segregated into 2 crews as described below
+
+## Structure and Components of the Interaction Crew
 
 ### Tools Used
 1. **swagger_directory_lister** = list all the files in the '{configuration.swagger_files_directory}' directory

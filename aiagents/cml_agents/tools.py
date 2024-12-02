@@ -86,8 +86,9 @@ def get_human_input(agent_name: str, agent_question: str) -> str:
         ),
         user=agent_name,
         respond=False,
-        avatar=f"{configuration.avatar_images[agent_name]}",
+        avatar=pn.pane.Image(f"{configuration.avatar_images[agent_name]}", styles={"margin-top": "1rem", "padding": "1.5rem"}),
     )
+    configuration.chat_interface.widgets[0].disabled = False
     configuration.spinner.value = False
     configuration.spinner.visible = False
 
@@ -99,6 +100,8 @@ def get_human_input(agent_name: str, agent_question: str) -> str:
 
     configuration.spinner.value = True
     configuration.spinner.visible = True
+
+    configuration.chat_interface.widgets[0].disabled = True
     return human_comments
 
 
@@ -264,7 +267,9 @@ class APICaller(BaseTool):
                 object=call_details,
                 styles=configuration.chat_styles,
                 stylesheets=[chat_stylesheet]
-            ), user="API Caller Tool", respond=False, avatar="🛠️"
+            ), user="API Caller Tool", 
+            respond=False, 
+            avatar=pn.pane.Image(f"{configuration.diagram_path}/tool.svg", styles={"margin-top": "1rem", "padding": "1.5rem"})
         )
 
         if method.upper() == "GET":

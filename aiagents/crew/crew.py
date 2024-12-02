@@ -47,6 +47,7 @@ def StartCrewInitialization(configuration: Initialize):
             ),
             user="System",
             respond=False,
+            avatar=pn.pane.Image(f"{configuration.diagram_path}/system.svg", styles={"margin-top": "1rem", "padding": "1.5rem"})
         )
         configuration.initialization_spinner.visible = True
         configuration.initialization_spinner.value = True
@@ -113,6 +114,7 @@ def StartCrewInitialization(configuration: Initialize):
                 ),
                 user="System",
                 respond=False,
+                avatar=pn.pane.Image(f"{configuration.diagram_path}/system.svg", styles={"margin-top": "1rem", "padding": "1.5rem"})
             )
             configuration.initialization_spinner.visible = False
             configuration.initialization_spinner.value = False
@@ -140,6 +142,7 @@ def StartCrewInitialization(configuration: Initialize):
                 ),
                 user="System",
                 respond=False,
+                avatar=pn.pane.Image(f"{configuration.diagram_path}/system.svg", styles={"margin-top": "1rem", "padding": "1.5rem"})
             )
             configuration.initialization_spinner.visible = False
             configuration.initialization_spinner.value = False
@@ -217,7 +220,9 @@ def StartCrewInteraction(configuration: Initialize):
                 stylesheets=[chat_stylesheet]
             ), 
             user="System", 
-            respond=False)
+            respond=False,
+            avatar=pn.pane.Image(f"{configuration.diagram_path}/system.svg", styles={"margin-top": "1rem", "padding": "1.5rem"})
+        )
         reset_for_new_input()
         configuration.spinner.value = False
         configuration.spinner.visible = False
@@ -225,12 +230,13 @@ def StartCrewInteraction(configuration: Initialize):
     except Exception as err:
         configuration.chat_interface.send(
             pn.pane.Markdown(
-                object=f"Starting Interaction Crew Failed with {err}\n Please Reload the Crew.",
+                object=f"Starting Interaction Crew Failed with {err}\n Please try restarting the crew.",
                 styles=configuration.chat_styles,
                 stylesheets=[chat_stylesheet]
             ),
             user="System",
-            respond=False
+            respond=False,
+            avatar=pn.pane.Image(f"{configuration.diagram_path}/system.svg", styles={"margin-top": "1rem", "padding": "1.5rem"})
         )
 
         configuration.spinner.visible=False
@@ -249,7 +255,8 @@ def session_created():
             "Starting the Crew",
             styles=configuration.chat_styles,
             stylesheets=[chat_stylesheet]
-        ), user="System", respond=False
+        ), user="System", respond=False,
+        avatar=pn.pane.Image(f"{configuration.diagram_path}/system.svg", styles={"margin-top": "1rem", "padding": "1.5rem"})
     )
     # Show the loading spinner as the Crew loads
     configuration.spinner.value = True
@@ -266,7 +273,8 @@ def create_session_without_start_button():
             "Thank you. \n Please enter further query below once the Human Input Agent is available.",
             styles=configuration.chat_styles,
             stylesheets=[chat_stylesheet]
-        ), user="System", respond=False
+        ), user="System", respond=False,
+        avatar=pn.pane.Image(f"{configuration.diagram_path}/system.svg", styles={"margin-top": "1rem", "padding": "1.5rem"})
     )
     # Show the loading spinner as the Crew loads
     configuration.spinner.value = True
