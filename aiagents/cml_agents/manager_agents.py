@@ -23,9 +23,9 @@ class ManagerAgents:
             """ Fetch the metadata summary using the metadata_summary_fetcher tool. If there"""
             """ is no metadata summary available, make sure that you return a meesage to the user with appropriate message that"""
             """none of API signatures are available and ask the user :- Please use ADMIN API to upload an OPEN API spec file."""
-            """ Once metadata file is present, figure out which API Specification metadata file is best"""
-            """suited for the provided task. Only when you are confident about which API Specification to use,"""
-            """tell the user about the appropriate API Specification metadata file to be used for the task.""",
+            """ Once metadata file is present, figure out which swagger metadata file is best"""
+            """suited for the provided task. Only when you are confident about which swagger to use,"""
+            """tell the user about the appropriate swagger metadata file to be used for the task.""",
             backstory="You are an expert in matching tasks to APIs.",
             verbose=True,
             allow_delegation=True,
@@ -80,4 +80,5 @@ class ManagerAgents:
             allow_delegation=True,
             callbacks=configuration.customInteractionCallbacks,
             step_callback=custom_agent_callback,
+            # step_kwargs={"agent": "API Selector Agent"}
         )

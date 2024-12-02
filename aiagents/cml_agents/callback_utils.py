@@ -9,7 +9,7 @@ def custom_agent_callback(output, *args, **kwargs):
     if "AgentFinish" in str(args):
         agent_match = re.search(r"return_values='([^']+)'", str(args))
         agent_name = agent_match.group(1) if agent_match else ""
-        if agent_name != "API Specification Description Summarizer":
+        if agent_name != "Swagger API Description Summarizer":
             configuration.current_agent = agent_name
 
     pprint(f"The callback kwargs are {kwargs}")

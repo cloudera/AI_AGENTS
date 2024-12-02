@@ -23,29 +23,29 @@ class CustomJSONEncoder(json.JSONEncoder):
         else:
             return super().default(obj)
 
-def read_API_Specification_file(API_Specification_file_location):
+def read_swagger_file(swagger_file_location):
     """
-    Reads a API Specification file in JSON or YAML format and returns the parsed data.
+    Reads a Swagger file in JSON or YAML format and returns the parsed data.
     
-    :param API_Specification_file_location: The path to the API Specification file
-    :return: Parsed API Specification data as a Python dictionary
+    :param swagger_file_location: The path to the Swagger file
+    :return: Parsed Swagger data as a Python dictionary
     """
-    if API_Specification_file_location.endswith('.json'):
+    if swagger_file_location.endswith('.json'):
         try:
-            with open(API_Specification_file_location, 'r') as file:
+            with open(swagger_file_location, 'r') as file:
                 return jsonref.load(file, lazy_load=False, proxies=False, merge_props=True)
         except (IOError, jsonref.JsonRefError) as e:
             print(f"Error loading API Specification file: {e}")
-    elif API_Specification_file_location.endswith('.yaml') or API_Specification_file_location.endswith('.yml'):
-        with open(API_Specification_file_location, 'r') as file:
+    elif swagger_file_location.endswith('.yaml') or swagger_file_location.endswith('.yml'):
+        with open(swagger_file_location, 'r') as file:
             return yaml.safe_load(file)
     else:
-        raise ValueError(f"Unsupported file format: {API_Specification_file_location}")
+        raise ValueError(f"Unsupported file format: {swagger_file_location}")
 
-def split_API_Specification_by_paths(API_Specification_data):
-    """Split the API Specification file into chunks based on the API paths."""
+def split_swagger_by_paths(swagger_data):
+    """Split the Swagger file into chunks based on the API paths."""
     chunks = {}
-    paths = API_Specification_data.get('paths', {})
+    paths = swagger_data.get('paths', {})
     
     for path, methods in paths.items():
         chunk = {
@@ -59,27 +59,27 @@ def sanitize_file_name(name):
     """Sanitize the file name by replacing invalid characters."""
     return name.replace('/', '_').replace('\\', '_')
 
-def API_Specification_parser(API_Specification_file_name: str, API_Specification_file_root: str, generated_folder_root: str):
+def swagger_parser(swagger_file_name: str, swagger_file_root: str, generated_folder_root: str):
     """
-    Processes a single API Specification file, splits it into individual files based on paths,
+    Processes a single Swagger file, splits it into individual files based on paths,
     and stores them in a specified directory structure.
-    This version is optimized for large API Specification files.
+    This version is optimized for large Swagger files.
     """
-    # Define the path to the API Specification file and the output folder for chunks
-    API_Specification_file_location = os.path.join(API_Specification_file_root, API_Specification_file_name)
-    bucket_folder_name = API_Specification_file_name.split(".json")[0]
+    # Define the path to the swagger file and the output folder for chunks
+    swagger_file_location = os.path.join(swagger_file_root, swagger_file_name)
+    bucket_folder_name = swagger_file_name.split(".json")[0]
 
-    # Read the API Specification file using the new read function
-    API_Specification_data = read_API_Specification_file(API_Specification_file_location)
+    # Read the Swagger file using the new read function
+    swagger_data = read_swagger_file(swagger_file_location)
 
-    # Create the output directory for the API Specification file chunks
+    # Create the output directory for the Swagger file chunks
     output_dir = os.path.join(generated_folder_root, bucket_folder_name)
     os.makedirs(output_dir, exist_ok=True)
 
     # Initialize metadata to map paths to files
     metadata = {}
 
-    chunks = split_API_Specification_by_paths(API_Specification_data)
+    chunks = split_swagger_by_paths(swagger_data)
 
     # Write each path chunk into the respective JSON file in the correct folder
     for path, chunk in chunks.items():

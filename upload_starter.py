@@ -15,11 +15,11 @@ async def upload_json(file: UploadFile = File(...)):
     try:
         # Read the contents of the uploaded JSON file
         contents = await file.read()
-        if not path.exists(configuration.API_Specification_files_directory):
-            makedirs(configuration.API_Specification_files_directory)
-        # Save the uploaded API Specification file in the designated directory
+        if not path.exists(configuration.swagger_files_directory):
+            makedirs(configuration.swagger_files_directory)
+        # Save the uploaded Swagger file in the designated directory
         file_path = path.join(
-            configuration.API_Specification_files_directory, file.filename
+            configuration.swagger_files_directory, file.filename
         )
         # need to handle duplicate summary stuff
         file_content = json.loads(contents.decode())

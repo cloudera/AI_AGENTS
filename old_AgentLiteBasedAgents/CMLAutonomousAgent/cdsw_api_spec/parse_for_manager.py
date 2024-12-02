@@ -4,7 +4,7 @@ import jsonref
 
 def remove_unecessary_keys(dictionary, useless_keys):
     """
-    since the original API Specification contains a ton of unnecessary metadata occupying
+    since the original swagger contains a ton of unnecessary metadata occupying
     valuable character count, we remove those extra fields
     """
     if isinstance(dictionary, dict):
@@ -18,13 +18,13 @@ def remove_unecessary_keys(dictionary, useless_keys):
             remove_unecessary_keys(item, useless_keys)
 
 
-def bucketer(API_Specification, threshold=2):
+def bucketer(swagger, threshold=2):
     """
-    The following code buckets the paths in the API_Specification specification by path segment
+    The following code buckets the paths in the swagger specification by path segment
     in order to have small json files that can be easily consumed
     """
     buckets = {}
-    for path, methods in API_Specification["paths"].items():
+    for path, methods in swagger["paths"].items():
         path_parts = path.split("/")
         path_parts = [
             s.split(":", 1)[0].lstrip("{").rstrip("}")
@@ -52,12 +52,18 @@ def bucketer(API_Specification, threshold=2):
     return buckets
 
 
-def API_SpecificationParser():
-    API_Specification = jsonref.load(
-        open("original_API_Specification.json"), lazy_load=False, proxies=False, merge_props=True
+def swaggerParser():
+    # import urllib.request
+
+    # CDSW_ENDPOINT = ""
+    # urllib.request.urlretrieve(
+    #     f"{CDSW_ENDPOINT}/api/v2/swagger.json", "original_swagger.json"
+    # )
+    swagger = jsonref.load(
+        open("original_swagger.json"), lazy_load=False, proxies=False, merge_props=True
     )
     # remove unnecessary ref definitions
-    del API_Specification["definitions"]
+    del swagger["definitions"]
 
     useless_keys = [
         "type",
@@ -68,9 +74,9 @@ def API_SpecificationParser():
         "operationId",
         "tags",
     ]
-    remove_unecessary_keys(API_Specification, useless_keys)
+    remove_unecessary_keys(swagger, useless_keys)
 
-    buckets = bucketer(API_Specification)
+    buckets = bucketer(swagger)
     metadata = {}
 
     # we need a metadata file that will allow for direct mapping of paths to relevant json file
@@ -96,4 +102,4 @@ def API_SpecificationParser():
 
 
 if __name__ == "__main__":
-    API_SpecificationParser()
+    swaggerParser()
