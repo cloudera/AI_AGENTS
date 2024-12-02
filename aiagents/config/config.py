@@ -77,13 +77,6 @@ class Initialize:
     def update_configuration(self):
         load_dotenv(find_dotenv(), override=True)
 
-        # from langchain_groq import ChatGroq
-        # self.llm = ChatGroq(
-        #     temperature=0,
-        #     model_name="llama3-70b-8192",
-        #     api_key="gsk_",
-        # )
-
         print("openai provider:", self.openai_provider)
     
         self.llm = AzureChatOpenAI(azure_deployment=environ.get(
@@ -94,13 +87,6 @@ class Initialize:
 
     def update_config_upload(self):
         load_dotenv(find_dotenv(), override=True)
-
-        # from langchain_groq import ChatGroq
-        # self.llm = ChatGroq(
-        #     temperature=0,
-        #     model_name="llama3-70b-8192",
-        #     api_key="gsk_",
-        # )
 
         print("openai provider:", self.openai_provider)
     

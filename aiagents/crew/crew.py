@@ -60,7 +60,6 @@ def StartCrewInitialization(configuration: Initialize):
                     configuration.generated_folder_path,
                 )
     agent_dict = {
-        # "API_Specification_splitter_agent": API_Specification_splitter_agents.API_Specification_splitter_agent,
         "metadata_summarizer_agent": API_Specification_splitter_agents.metadata_summarizer_agent,
     }
     tasks = TasksInitialize(configuration=configuration, agents=agent_dict)
@@ -248,8 +247,6 @@ def StartCrewInteraction(configuration: Initialize):
 # Handle session creation, which includes starting the CrewAI process
 def session_created():
     # Disable the start button and clear chat interface to start a session
-    # start_crew_button.disabled = True
-    # configuration.chat_interface.clear()
     configuration.chat_interface.send(
         pn.pane.Markdown(
             "Starting the Crew",

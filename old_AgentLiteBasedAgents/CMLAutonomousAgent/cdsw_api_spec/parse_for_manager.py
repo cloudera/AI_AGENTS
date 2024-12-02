@@ -53,12 +53,6 @@ def bucketer(API_Specification, threshold=2):
 
 
 def API_SpecificationParser():
-    # import urllib.request
-
-    # CDSW_ENDPOINT = ""
-    # urllib.request.urlretrieve(
-    #     f"{CDSW_ENDPOINT}/api/v2/API_Specification.json", "original_API_Specification.json"
-    # )
     API_Specification = jsonref.load(
         open("original_API_Specification.json"), lazy_load=False, proxies=False, merge_props=True
     )

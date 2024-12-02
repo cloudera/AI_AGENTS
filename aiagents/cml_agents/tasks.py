@@ -28,9 +28,7 @@ class TasksInitialize:
             ),
             expected_output="A concise answer stating the exact location of the final generated metadata summary file.",
             agent=agents["metadata_summarizer_agent"],
-            #output_json=metadata_summaries,
             output_file=f"{configuration.generated_folder_path}/metadata_summaries",
-            # context=[self.splitter_task],
         )
 
 
@@ -66,7 +64,6 @@ class Tasks:
             ),
             output_json=humanInputOutput,
             agent=agents["human_input_agent"],
-            #context=[self.metadata_summarizer_task],
         )
 
         class inputMatcherDecision(BaseModel):
@@ -165,24 +162,7 @@ class Tasks:
             ),
             output_json=decisionValidatorOutput,
             agent=agents["validator_agent"],
-            #context=[self.metadata_summarizer_task],
         )
-
-        # class managerDecision(BaseModel):
-        #     """
-        #     This class is used to store the decision made by the manager agent. It has several fields:
-        #     - endpoint: The endpoint that the manager agent has decided needs to be used.
-        #     - method: The HTTP method that the manager agent has decided needs to be used.
-        #     - file: The location of the split metadata file associated with the endpoint..
-        #     - user_query: The original user query verbatim.
-        #     - reasoning: The reasoning behind why the manager agent has decided to use this particular endpoint and method .
-        #     """
-
-        #     endpoint: str
-        #     method: str
-        #     file: str
-        #     user_query: str
-        #     reasoning: str
 
         class managerOutput(BaseModel):
             """
@@ -245,7 +225,6 @@ class Tasks:
                     - role: The value of {agents['manager_agent'].role}
                 """
             ),
-            # output_json=managerDecision,
             output_json=managerOutput,
             context=[
                 self.task_matching_task,
@@ -255,40 +234,3 @@ class Tasks:
             agent=agents["manager_agent"],
         )
 
-        # self.api_calling_task = Task(
-        #     description=dedent(
-        #         """
-        #         Complete the following steps to make the API call, using the context obtained from the manager_task:
-        #         1. Identify the API Call:
-        #             1. Using the context from the 'manager_task', locate the API Specification metadata file to identify the API endpoint required by the user. The full path for the API call file can be constructed by combining the manager task details with the '{configuration.generated_folder_path}'.
-        #         2. Determine Parameters:
-        #             1. Review the API Specification file to extract both required and optional parameters for the API call.
-        #             2. Provide the user with a well-formatted list of these parameters:
-        #                 1. Required parameters: Specify which parameters are mandatory for the call to succeed and give a brief description of each.
-        #                 2. Optional parameters: List optional parameters with a short description, indicating they are not necessary for the basic functionality but can provide extra control.
-        #         3. Request Missing Information:
-        #             1. If any required parameters are missing, ask the user to provide the necessary values. Be polite yet clear when prompting for required parameters.
-        #             2. If the user omits optional parameters, proceed without them unless instructed otherwise.
-        #         4. Fetch Additional Information (if needed):
-        #             1. If the user’s request requires more information (such as unavailable details or references), communicate with the 'API Selector' for further clarification or additional API calls.
-        #             2. Relay any retrieved information back to the user in a structured, easy-to-read format.
-        #         5. Build and Confirm Payload:
-        #             1. Construct the final payload for the API call, including the required and optional parameters. Display the constructed payload to the user, ensuring they review and confirm it before proceeding.
-        #         6. Execute the API Call:
-        #             1. Trigger the 'api_caller' tool to execute the API call with the payload. Handle any errors that arise:
-        #                 1. Handle Errors: If an error occurs, attempt to diagnose and resolve it yourself. If user input or clarification is necessary, ask for it.
-        #         7. Return Results:
-        #             1. Once the API call is successful, return the output to the user. If needed, summarize the result in a clear and concise manner for easy understanding.
-        #         8. Completion & Further Instructions:
-        #             1. After delivering the outcome, prompt the user with the following message: “Please reload the crew if you have any further queries.”
-        #             2. Conclude the task execution unless further actions are required by the user.
-        #         """
-        #     ),
-        #     expected_output=dedent(
-        #         """
-        #         Output the result of the API call talking about the action that has been taken in a concise manner.
-        #         """
-        #     ),
-        #     agent=agents["api_caller_agent"],
-        #     context=[self.initial_human_input_task, self.manager_task],
-        # )
