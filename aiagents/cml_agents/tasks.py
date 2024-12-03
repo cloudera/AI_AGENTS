@@ -8,20 +8,6 @@ from aiagents.config import Initialize
 
 class TasksInitialize:
     def __init__(self, configuration: Initialize, agents: Dict[str, Agent]) -> None:
-        # self.splitter_task = Task(
-        #     description=dedent(
-        #         """
-        #         Find all the swagger files present in the target swagger directory and then split each swagger file.
-        #         * If the folder called 'generated' is already present, consider this task as complete, and take no 
-        #         further actions.
-        #         * If the generated folder is not present, run the swagger splitter tool.
-                
-        #         Make no assumptions whatsoever.
-        #         """
-        #     ),
-        #     expected_output="A concise answer stating the exact location of all the generated swagger metadata files.",
-        #     agent=agents["swagger_splitter_agent"],
-        # )
 
         class metadata_summaries(BaseModel):
             summaries: dict[str, str]

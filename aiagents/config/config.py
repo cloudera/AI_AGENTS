@@ -16,11 +16,8 @@ class Initialize:
         "Human Input Agent": "1_human_inputt.jpg",
         "get_human_input": "get_human_input.jpg",
         "Input Matcher": "2_task_matcherr.jpg",
-        # "Swagger API Description Summarizer": "3_metadata_summariser.jpg",
-        # "swagger_splitter": "4_swagger_splitter.jpg",
         "API Selector Agent": "3_api_selectorr.jpg",
         "Decision Validator Agent": "4_decision_validatorr.jpg",
-        # "API Caller Agent": "7_api_caller.jpg",
         "api_caller": "api_tool.jpg",
     }
 
@@ -66,15 +63,13 @@ class Initialize:
             "Human Input Agent": f"{self.diagram_path}/human_input_agent.svg",
             "API Selector Agent": f"{self.diagram_path}/api_selector_agent.jpg",
             "Decision Validator Agent": f"{self.diagram_path}/decision_validator_agent.jpg",
-            # "API Caller Agent": f"{self.diagram_path}/api_caller_agent.jpg",
             "Input Matcher": f"{self.diagram_path}/task_matcher_agent.jpg",
-            # "Swagger API Description Summarizer": f"{self.diagram_path}/metadata_summarizer_agent.jpg",
-            # "swagger_splitter": f"{self.diagram_path}/swagger_splitter_agent.jpg",
         }
         self.chat_styles={
             "font-size": "0.87rem",
-            "background-color": "#f9fefe",
-            "min-height": "2.5rem"
+            "background-color": "#f6fafa",
+            "min-height": "2.5rem",
+            "border": "0.05rem solid #c0caca",
         }
         self.initialization_crew_thread: threads.thread_with_trace = None
         self.crew_thread: threads.thread_with_trace = None

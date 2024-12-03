@@ -136,37 +136,6 @@ def update_env_variables(*, API_ENDPOINT: str = None, API_BEARER_TOKEN: str = No
         api_bearer_token[configuration.selected_swagger_file] = API_BEARER_TOKEN
         set_key(env_file, "API_BEARER_TOKEN", api_bearer_token, quote_mode="never")
 
-# class SwaggerSplitter(BaseTool):
-#     """
-#     This tool splits will swagger file into multiple files."
-#     """
-
-#     name: str = "swagger_splitter"
-#     description: str = (
-#         """This tool splits will swagger file into multiple files, and generates a metadata file."""
-#         """This tool accepts no input parameters, so just pass '{"input": {}}' as input."""
-#     )
-
-#     def _run(self) -> str:
-#         if exists(configuration.generated_folder_path):
-#             return dedent(
-#                 """
-#                     Swagger splitter has already run. If a user wants to force a rerun,
-#                     they need to delete the 'generated' folder. If there exists no metadata summaries,
-#                     or you fail to read the directory, you must run the Swagger API Description Summarizer.
-#                     Exiting.
-#                 """
-#             )
-#         for filename in listdir(configuration.swagger_files_directory):
-#             if filename.endswith(".json"):
-#                 swagger_parser(
-#                     filename,
-#                     configuration.swagger_files_directory,
-#                     configuration.generated_folder_path,
-#                 )
-
-#         return f"""Swagger splitter has run successfully. The generated swagger files are in the directory {configuration.generated_folder_path}."""
-
 
 class SummaryGenerator(BaseTool):
     """

@@ -53,45 +53,6 @@ class CustomPanelCallbackHandler(pn.chat.langchain.PanelCallbackHandler):
         self.chat_interface: pn.chat.ChatInterface = chat_interface
         self.agent_name: Optional[str] = None
 
-    # def on_agent_action(self, action: AgentAction, *args, **kwargs: Any) -> Any:
-    #     self.chat_interface.send(
-    #         f"Agent action: {action.log}",
-    #         respond=False,
-    #     )
-    #     return super().on_agent_action(action, *args, **kwargs)
-
-    # def on_agent_finish(self, finish: AgentFinish, *args, **kwargs: Any) -> Any:
-    #     self.chat_interface.send(
-    #         f"Agent finish: {finish.log}",
-    #         respond=False,
-    #     )
-    #     return super().on_agent_finish(finish, *args, **kwargs)
-
-    # def on_tool_start(
-    #     self, serialized: dict[str, Any], input_str: str, *args, **kwargs
-    # ):
-    #     self.chat_interface.send(
-    #         f"started tool: {serialized['name']}, other details: {serialized}, input str: {input_str}",
-    #         respond=False,
-    #     )
-    #     self._update_active(DEFAULT_AVATARS["tool"], serialized["name"])
-    #     self._stream(f"Tool input: {input_str}")
-    #     return super().on_tool_start(serialized, input_str, *args, **kwargs)
-
-    # def on_tool_end(self, output: str, *args, **kwargs):
-    #     self.chat_interface.send(
-    #         f"Tool output: {output}",
-    #         respond=False,
-    #     )
-    #     self._stream(output)
-    #     self._reset_active()
-    #     return super().on_tool_end(output, *args, **kwargs)
-
-    # def on_tool_error(
-    #     self, error: Union[Exception, KeyboardInterrupt], *args, **kwargs
-    # ):
-    #     return super().on_tool_error(error, *args, **kwargs)
-
     def on_chain_start(
         self, serialized: dict[str, Any], inputs: dict[str, Any], *args, **kwargs
     ):
@@ -163,16 +124,10 @@ class CustomPanelCallbackHandler(pn.chat.langchain.PanelCallbackHandler):
         )
         markdown_input.styles = custom_style
         color = {
-            "Human Input Agent": "#80e5e9",
-            "API Selector Agent": "#fcde77",
-            "Decision Validator Agent": "#ffb568",
-            "API Caller Agent": "#ffe5f1",
-            "Input Matcher": "#81c3f6",
-            "API Specification Description Summarizer": "#f3f9cf",
-            "API_Specification_splitter": "#eedaff",
-            "Input Matcher": "#e6f3fd",
-            "Swagger API Description Summarizer": "#f3f9cf",
-            "swagger_splitter": "#eedaff",
+            "Human Input Agent": "#9eebee",
+            "API Selector Agent": "#fde492",
+            "Decision Validator Agent": "#ffc07f",
+            "Input Matcher": "#9fd1f8",
         }
         card = pn.Card(
             markdown_input,
@@ -189,9 +144,10 @@ class CustomPanelCallbackHandler(pn.chat.langchain.PanelCallbackHandler):
             active_header_background=color.get(user, "#ffe5f1"),
             header_background=color.get(user, "#ffe5f1"),
             styles={
-                "border-bottom": "0.1rem solid #c0caca",
+                "border": "0.01rem solid #8b9d9d",
+                "border-bottom": "0.1rem solid #346d6d",
                 "border-radius": "0.25rem !important",
-                "background-color": "#f9fefe"
+                "background-color": "#f6fafa",
             },
             stylesheets=[card_stylesheet]
         )

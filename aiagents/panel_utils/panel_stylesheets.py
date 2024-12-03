@@ -103,7 +103,8 @@ chat_stylesheet = """
 card_stylesheet = """
     .card-header,
     .accordion-header {
-        border-bottom: 0.1rem solid #c0caca !important;
+        border: 0.01rem solid #8b9d9d;
+        border-bottom: 0.12rem solid #346d6d !important;
         border-radius: 0.2rem !important;
     }
     ::-webkit-scrollbar {

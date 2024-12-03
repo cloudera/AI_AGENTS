@@ -333,12 +333,6 @@ def handle_inputs(event):
         if not get_key(env_file, "AZURE_OPENAI_ENDPOINT") or azure_endpoint_input.value:
             set_key(env_file, "AZURE_OPENAI_ENDPOINT", azure_endpoint_input.value)
 
-    # Handle the uploaded Swagger file: delete old file, create the directory, and save the new file
-    # if file_input.value:
-    #     try:
-    #         rmtree(configuration.generated_folder_path) # Remove old generated folder if it exists
-    #     except FileNotFoundError:
-    #         pass
 
 
     # If the directory for Swagger files does not exist, create it
@@ -535,7 +529,7 @@ def main():
         styles = {
             "margin": "-0.3rem auto -0.8rem",
             "padding": "0",
-            "font-size": "0.82rem",
+            "font-size": "0.79rem",
             "font-family": "Verdana",
             "font-weight": "500",
             "color": "#454545",

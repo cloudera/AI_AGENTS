@@ -95,20 +95,10 @@ def StartCrewInitialization(configuration: Initialize):
 
     splitterCrew = Crew(
         agents=[
-            # agent_dict["swagger_splitter_agent"],
             agent_dict["metadata_summarizer_agent"],
-            # agent_dict["task_matching_agent"],
-            # agent_dict["manager_agent"],
-            # agent_dict["human_input_agent"],
-            # # agent_dict["api_caller_agent"],
-            # agent_dict["validator_agent"],
         ],
         tasks=[
             tasks.metadata_summarizer_task,
-            # tasks.initial_human_input_task,
-            # tasks.task_matching_task,
-            # tasks.manager_task,
-            # tasks.api_calling_task,
         ],
         verbose=1,
         memory=False,
@@ -185,12 +175,9 @@ def StartCrewInteraction(configuration: Initialize):
 
 
     agent_dict = {
-        # "swagger_splitter_agent": swagger_splitter_agents.swagger_splitter_agent,
-        #"metadata_summarizer_agent": swagger_splitter_agents.metadata_summarizer_agent,
         "task_matching_agent": manager_agents.task_matching_agent,
         "manager_agent": manager_agents.manager_agent,
         "human_input_agent": agents.human_input_agent,
-        # "api_caller_agent": agents.api_caller_agent,
         "validator_agent": agents.validator_agent,
     }
 
@@ -217,20 +204,15 @@ def StartCrewInteraction(configuration: Initialize):
 
     splitterCrew = Crew(
         agents=[
-            # agent_dict["swagger_splitter_agent"],
-            #agent_dict["metadata_summarizer_agent"],
             agent_dict["task_matching_agent"],
             agent_dict["manager_agent"],
             agent_dict["human_input_agent"],
-            # agent_dict["api_caller_agent"],
             agent_dict["validator_agent"],
         ],
         tasks=[
-            #tasks.metadata_summarizer_task,
             tasks.initial_human_input_task,
             tasks.task_matching_task,
             tasks.manager_task,
-            # tasks.api_calling_task,
         ],
         verbose=1,
         memory=False,
