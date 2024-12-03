@@ -164,15 +164,15 @@ openai_provider_input = pn.widgets.RadioButtonGroup(
 
 # Inputs for Azure OpenAI related fields.
 azure_deployment_input = pn.widgets.TextInput(
-    name="Azure OpenAI Deployment   cml", 
+    name="Azure OpenAI Deployment", 
     styles={"font-size": "50px"}, width=360, stylesheets=[input_stylesheet, azure_input_stylesheet],
 )
 azure_endpoint_input = pn.widgets.TextInput(
-    name="Azure OpenAI Endpoint       https://cml-gpt-1.openai.azure.com", 
+    name="Azure OpenAI Endpoint", 
     styles={"font-size": "50px"}, width=360, stylesheets=[input_stylesheet, azure_input_stylesheet],
 )
 azure_embedding_input = pn.widgets.TextInput(
-    name="Azure OpenAI Embedding   cml-embedding",
+    name="Azure OpenAI Embedding",
     styles={"font-size": "50px"}, width=360, stylesheets=[input_stylesheet, azure_input_stylesheet],
 )
 
@@ -187,7 +187,7 @@ azure_details = pn.Column(
 
 # OpenAI key input
 key_input = pn.widgets.PasswordInput(
-    name="OpenAI Key 6b5aeacf1b9c474fa484db1edf46ee33",
+    name="OpenAI Key",
     placeholder="",
     width=360,
     styles={"font-size": "50px"},
