@@ -1,86 +1,147 @@
 # Multi-Agent API Orchestrator using CrewAI
 
-### Welcome to the Multi-Agent API Orchestrator
+This repository showcases the implementation of a **Multi-Agent API Orchestrator**, an advanced application powered by CrewAI. The orchestrator leverages a multi-agent collaborative framework, where multiple intelligent agents work in tandem to streamline interactions with APIs. These agents dynamically interpret user queries, process complex API Specification files such as Swagger or OpenAPI, and efficiently execute API calls tailored to the user's input.
 
-Get started by configuring your model and API integrations. We support both **Azure OpenAI** and **OpenAI** services. Please follow the steps below:
+By harnessing natural language processing capabilities, the system allows users to interact seamlessly with their services, bypassing the need for intricate technical knowledge. This innovative approach simplifies workflows and highlights how multi-agent systems can enhance API management, enabling more effective integration and automation for modern application ecosystems.
 
-#### Configuration Steps
-- **Azure OpenAI**: Provide the deployment name, endpoint URL, embedding deployment name, and API key.
-- **OpenAI**: Simply provide your OpenAI API key to enable model integration.
+---
 
-#### Natural Language (NL) to API Integration
+## The Technology in Action: CrewAI
+
+**CrewAI** is an advanced multi-agent framework designed to simplify and optimize complex task execution by coordinating multiple autonomous agents. It provides a platform for defining, orchestrating, and managing agents to collaborate dynamically, each focusing on specific subtasks to accomplish overarching goals efficiently.
+
+### Key Features of CrewAI
+- **Agent Coordination**:
+  - Multiple agents can be deployed simultaneously, each performing distinct roles.
+  - Agents can communicate and share intermediate results for cohesive task execution.
+- **Integration with APIs**:
+  - CrewAI integrates seamlessly with APIs and external services, making it suitable for tasks involving data fetching, analysis, or interaction with external systems.
+- **Dynamic Orchestration**:
+  - Tasks are split into smaller components, and CrewAI dynamically assigns agents to these subtasks.
+  - Agents adapt their behavior based on context and intermediate outcomes.
+- **Scalability**:
+  - Designed to handle both simple and large-scale tasks, CrewAI can scale with additional agents or resources when needed.
+- **Use in Multi-Agent Systems**:
+  - Supports building systems where agents analyze, validate, and act upon user inputs or system states collaboratively.
+
+### Example Use Cases
+- **API Orchestration**: CrewAI handles scenarios where user input requires multiple API calls, aggregating results to provide meaningful responses.
+- **Troubleshooting Automation**: In a Kubernetes environment, CrewAI agents identify and resolve issues within pods, namespaces, or clusters.
+- **Dynamic Task Allocation**: Tasks such as generating reports, processing large datasets, or monitoring systems can be distributed among agents for faster execution.
+
+### Why Choose CrewAI?
+CrewAI excels in scenarios that require:
+- High levels of parallelism.
+- Dynamic decision-making by agents.
+- Collaboration between multiple autonomous systems.
+
+Its modular and flexible nature makes it an excellent choice for projects involving multi-agent orchestration, automation, or dynamic decision-making workflows.
+
+---
+
+## The UI Framework: Panel
+
+Panel is an open-source Python library powered by HoloViz and designed to streamline the development of robust tools, dashboards, and complex applications entirely within Python. With a comprehensive philosophy, Panel integrates seamlessly with the PyData ecosystem, offering powerful, interactive data tables, visualizations, and much more, to unlock, visualize, share, and collaborate on your data for efficient workflows.
+
+Its feature set includes high-level reactive APIs and lower-level callback-based APIs, enabling rapid development of exploratory applications and facilitating the creation of intricate, multi-page applications with extensive interactivity.
+
+### Why Choose Panel?
+Panel is a versatile Python-based library that works well for more complex, multi-threaded applications:
+
+- **Session State Management**: Panel supports session-based state management, which is critical for applications that rely on persistent states across user interactions.
+- **Multi-Threading and Performance**:
+  - Integrates well with backends like FastAPI or Tornado for multi-threaded performance.
+  - Supports asynchronous updates and interaction, making it suitable for handling concurrent tasks and updates from CrewAI agents.
+- **Rich Interaction Models**:
+  - Supports sliders, dropdowns, plots, and widgets, enabling dynamic interactions with AI agents or tasks.
+- **Integration with Python Ecosystem**:
+  - Seamless integration with Python visualization libraries like Bokeh, Matplotlib, and Plotly.
+  - Can handle real-time updates via WebSockets.
+
+---
+
+## Multi-Agent API Orchestrator: Getting Started
+
+In the application interface, you can customize the configuration to suit your specific needs. Under the **"Model Configuration Details"** section, select and configure the model you wish to use for processing your requests. In the **"Natural Language (NL) to API"** section, define the API Specifications that facilitate seamless communication between natural language inputs and their corresponding API calls. We support both **Azure OpenAI** and **OpenAI** providers, offering flexibility to leverage the capabilities of your preferred OpenAI Provider. Simply select the provider and input the required credentials.
+
+<div>
+    <img src="assets/Landing_Page.png" alt="Agents" width="1200" height="689">
+</div>
+
+### Model Configuration Steps
+- **Azure OpenAI**: Provide the deployment name, endpoint URL, embedding deployment name, and Azure OpenAI API key.
+- **OpenAI**: Provide your OpenAI API key to enable model integration.
+
+### Natural Language (NL) to API Integration Details
 - **Upload API Specification**: Upload a valid API Specification file.
 - **API Endpoint**: Enter the API endpoint for the integration.
 - **API Bearer Token**: Provide the bearer token to enable secure API authentication.
 
-Once all details are entered, click **Upload** to validate your inputs and initiate the orchestration process. **Streamline API orchestration** with CrewAI—handle complexities effortlessly and focus on results.""",
+Once the Natural Language (NL) to API details are entered, click **Upload** to validate your inputs and initiate the orchestration process. **Streamline API orchestration** with CrewAI—handle complexities effortlessly and focus on results.
 
+---
 
-The framework is segregated into 2 crews as described below
-
-## Structure and Components of the Interaction Crew
+## Structure and Components: The Initialization Crew
 
 ### Tools Used
-1. **swagger_directory_lister** = list all the files in the '{configuration.swagger_files_directory}' directory
-2. **swagger_splitter** = splits the swagger file into multiple files, and generates a metadata file
-3. **get_human_input** = gets the input from the user
-4. **summary_generator** = passes provided text to an LLM model and returns a detailed summary
-5. **generated_directory_lister** = recursively lists the generated directory's content
-6. **metadata_summary_fetcher** = reads the generated/summaries/metadata_summaries file's content
-7. **api_caller** = makes API calls using the "requests" Python library
-8. **FileReadTool** = reads a file's content
-9. **DirectoryReadTool** = recursively lists a directory's content
-		
-        1-7 = Custom Tools 
-        8,9 = Crew AI inbuilt tools
+1. **summary_generator**: Passes provided text to an LLM model and returns a detailed summary.
+2. **generated_directory_lister**: Recursively lists the generated directory's content.
 
-<br>
+### Agent in Action
+**Metadata Summarizer Agent**: Generates concise, descriptive summaries of API capabilities for all API Specification JSON files.
+
+<div>
+    <img src="assets/Initialization_Agent_Tools_Mapping.png" alt="Agents" width="350" height="350">
+</div>
+
+### Tasks and Workflow
+#### When the Natural Language (NL) to API Details are Uploaded:
+1. Locate the uploaded API Specification file and split it into smaller, path-specific chunks for easier management.
+2. **Metadata Summarizer Task [Metadata Summarizer Agent]**: Triggers the 'summary_generator' tool to generate metadata summaries for each API Specification file. If metadata summaries already exist, no action is taken.
+
+---
+
+## Structure and Components: The Interaction Crew
+
+### Tools Used
+1. **get_human_input**: Gathers input from the user.
+2. **update_env_variables**: Updates environment variables (API Endpoint/Bearer Token) on the fly.
+3. **metadata_summary_fetcher**: Reads content from generated metadata summaries.
+4. **api_caller**: Makes API calls using the "requests" Python library.
+5. **generated_directory_lister**: Recursively lists the generated directory's content.
+6. **FileReadTool**: Reads file content (CrewAI native tool).
 
 ### Agents in Action
-1. **Swagger Splitter Agent** = splits large Swagger JSON files into smaller, manageable files, ensuring efficient processing.
-2. **Human Input Agent** = gathers required information from the user and relaying it back to the delegating agent.
-3. **Input Matcher Agent** = identifies the best matching Swagger metadata file for a given task using metadata summaries.
-4. **Metadata Summarizer Agent** = generates concise, descriptive summaries of API capabilities for all Swagger JSON files.
-5. **API Selector Agent** = selects the most appropriate API endpoint and method from a metadata file to fulfill a task.
-6. **Decision Validator Agent** = validates whether the actions of the API Selector Agent will satisfactorily fulfill the<br>
-original query and providing clear feedback with reasoning for its decision.
-7. **API Caller Agent** = clarifies required and optional parameters for an API call, executing the call, and handling any<br>
-errors or missing information.
+1. **Human Input Agent**: Gathers required information from the user and relays it back to the delegating agent.
+2. **Input Matcher Agent**: Identifies the best matching Swagger metadata file for a given task using metadata summaries.
+3. **API Selector Agent**: Selects the most appropriate API endpoint and method from metadata files, clarifies required parameters, executes the call, and handles any errors.
+4. **Decision Validator Agent**: Validates whether the actions of the API Selector Agent fulfill the original query and provides feedback with reasoning.
 
-<br>
+<div>
+    <img src="assets/Interaction_Agents_Collaboration_Flow.png" alt="Agents" width="500" height="500" style="margin-right: 50px">
+    <img src="assets/Interaction_Agent_Tools_Mapping.png" alt="Agents" width="500" height="500">
+</div>
 
-<img src="assets/Agent_interaction_flow.png" alt="Agents" width="500" height="500">
+### Tasks and Workflow
+#### When Crew Execution is Initiated:
+1. **Initial Human Input Task [Human Input Agent]**: Prompts the user for their desired action based on the API Specification file and returns their response without alterations.
+2. **Input Matching Task [Input Matcher Agent]**: If multiple API Specification files are uploaded, identifies and returns the optimal file based on user task context and metadata summary analysis.
+3. **Manager Task [API Selector Agent]**: Identifies the most suitable API endpoint and method based on metadata and user context, ensuring all parameters are accounted for and the payload is confirmed.
+4. **Decision Validator Task [Decision Validator Agent]**: Validates the API Selector Agent's proposed actions against the original query to ensure alignment with user intent.
+5. Finish execution and prepare for the next user action in a continuous chat format.
 
-<br><br>
+---
 
-<img src="assets/Agent_tools_mapping.png" alt="Agents" width="500" height="800">
+## Application Features
 
+### Restart Crew
+Enables users to restart the crew on demand, useful for scenarios such as retrying due to unfavorable circumstances or starting afresh after undesired input.
 
-## Tasks and Workflow
+### Multiple and Parallel API Specification File Processing
+Allows users to upload multiple API specification files on the fly without interrupting ongoing workflows in the chat interface. The details of file processing are displayed dynamically in the sidebar.
 
-### Steps to Perform before 'Start Crew':
-<ol>
-<li>Choose the OpenAI Provider (Azure OpenAI vs Open AI)</li>
-<li>If Azure OpenAI is selected, provide the below details:</li>
-<ol type="a">
-    <li>Azure OpenAI Deployment</li>
-    <li>Azure OpenAI Endpoint</li>
-    <li>Azure OpenAI Embedding</li>
-</ol>
-<li>Provide the OpenAI Key</li>
-<li>Provide the API Endpoint on which queries to be resolved</li>
-<li>Provide the API Bearer Token need to authenticate requests to the API Endpoint</li>
-<li>Upload the Swagger file containing APIs for the API Endpoint provided</li>
-<li>Click on 'Upload' to submit the above details</li>
-<li>Click on the 'Start Crew' button to start the crew execution</li>
-</ol>
+### Choice of OpenAI Provider
+Supports both Azure OpenAI and OpenAI, which can be chosen either at the beginning of the execution or even before uploading a different API Specification file. Users can toggle between providers and upload corresponding details for the desired level of accuracy and performance.
 
-### Execution Initiated by 'Start Crew':
-1. **Initial Human Input Task** [<b style="color:#479ba0">Human Input Agent</b>] = Prompts the user for their desired action based on the provided Swagger files, and return their response exactly as stated, without any alterations.
-2. **Swagger Splitter Task** [<b style="color:#9778a4">Swagger Splitter Agent</b>] = Locates all swagger files in the target directory and split them, unless the 'generated' folder already exists, in which case take no action.
-3. **Metadata Summarizer Task** [<b style="color:#99cf78">Metadata Summarizer Agent</b>] = Triggers the 'summary_generator' tool to generate summaries for swagger files from the specified folder, unless the metadata summary already exists, in which case take no action.
-4. **Task Matching Task** [<b style="color:#589fc5">Task Matching Agent</b>] =  This is only needed if there are ***multiple Swagger files*** uploaded. Identifies and return the optimal Swagger metadata file based on user task context and metadata summary analysis.
-5. **Manager Task** [<b style="color:#ffc482">API Selector Agent</b>] = Identifies and return the most suitable Swagger file based on the metadata summary and user context.
-6. **Decision Validator Task** [<b style="color:#c5813d">Decision Validator Agent</b>] = Validates the API Selector Agent's proposed answer against the original query, concluding whether it meets the user's intent and expectations.
-7. **API Calling Task** [<b style="color:#cc9999">API Caller Agent</b>] = Makes the API call, ensuring all parameters are identified, requested, and the payload is confirmed before execution.
-8. Stop execution. Need to click on 'Restart Crew' to start a new session.
+### Clear Indication of Agent and Tool in Action
+The diagrams in the sidebar visually indicates the workflow in progress, enabling users to monitor the agents and tools being executed and gain insights into the processing steps.
