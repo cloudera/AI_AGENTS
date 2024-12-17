@@ -65,7 +65,7 @@ Panel is a versatile Python-based library that works well for more complex, mult
 In the application interface, you can customize the configuration to suit your specific needs. Under the **"Model Configuration Details"** section, select and configure the model you wish to use for processing your requests. In the **"Natural Language (NL) to API"** section, define the API Specifications that facilitate seamless communication between natural language inputs and their corresponding API calls. We support both **Azure OpenAI** and **OpenAI** providers, offering flexibility to leverage the capabilities of your preferred OpenAI Provider. Simply select the provider and input the required credentials.
 
 <div>
-    <img src="assets/Landing_Page.png" alt="Agents" width="1200" height="689">
+    <img src="assets/Landing_Page.png" alt="Agents" width="830" height="476">
 </div>
 
 ### Model Configuration Steps
